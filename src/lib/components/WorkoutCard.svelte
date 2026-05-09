@@ -1,6 +1,5 @@
 <script>
   export let workout = {}
-  export let onStart = () => {}
   export let onDelete = () => {}
 
   const { _id, name, duration = 0, categories = [], level = 'N/A', exercises = [] } = workout
@@ -26,7 +25,7 @@
   {/if}
 
   <div class="actions">
-    <button class="btn-start" on:click={() => onStart(_id)}>Start</button>
+    <a href="/workouts/{_id}/session" class="btn-start">Start</a>
     <button class="btn-delete" on:click={() => onDelete(_id, name)}>Delete</button>
   </div>
 </article>
@@ -123,6 +122,8 @@
   .btn-start {
     background: #FF8C00;
     color: #111111;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn-start:hover {

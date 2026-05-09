@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
   import WorkoutCard from '$lib/components/WorkoutCard.svelte'
 
   let workouts = []
@@ -73,7 +72,6 @@
       {#each workouts as workout (workout._id)}
         <WorkoutCard
           {workout}
-          onStart={startWorkout}
           onDelete={deleteWorkout}
         />
       {/each}
