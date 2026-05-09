@@ -26,6 +26,7 @@
 
   <div class="actions">
     <a href="/workouts/{_id}/session" class="btn-start">Start</a>
+    <a href="/workouts/{_id}/edit" class="btn-edit">Edit</a>
     <button class="btn-delete" on:click={() => onDelete(_id, name)}>Delete</button>
   </div>
 </article>
@@ -109,6 +110,7 @@
   }
 
   .btn-start,
+  .btn-edit,
   .btn-delete {
     padding: 0.45rem 0.7rem;
     border: none;
@@ -134,6 +136,18 @@
 
   .btn-start:active {
     transform: translateY(0);
+  }
+
+  .btn-edit {
+    background: rgba(100, 200, 255, 0.15);
+    color: #7ec8ff;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-edit:hover {
+    background: rgba(100, 200, 255, 0.25);
+    transform: translateY(-1px);
   }
 
   .btn-delete {

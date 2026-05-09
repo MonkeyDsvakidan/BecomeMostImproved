@@ -194,6 +194,15 @@
         <button class="btn-skip-break" on:click={nextExercise}>Skip Break</button>
       </div>
     </div>
+  {:else if totalExercises === 0}
+    <div class="empty-state">
+      <div class="empty-content">
+        <h1>❌ No Exercises</h1>
+        <p class="empty-text">This workout doesn't have any exercises yet.</p>
+        <p class="empty-desc">Add exercises to this workout before you can start it.</p>
+        <a href="/workouts" class="btn-back-to-workouts">Back to Workouts</a>
+      </div>
+    </div>
   {:else if currentExercise}
     <header class="session-header">
       <h1>{workout.name}</h1>
@@ -644,6 +653,65 @@
   .btn-skip-break:hover {
     background: rgba(76, 175, 80, 0.1);
     border-color: #4caf50;
+  }
+
+  .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
+
+  .empty-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 2rem;
+    background: rgba(255, 100, 100, 0.1);
+    border: 2px solid rgba(255, 100, 100, 0.3);
+    border-radius: 12px;
+    max-width: 400px;
+  }
+
+  .empty-content h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #ff6464;
+  }
+
+  .empty-text {
+    color: #d3d3d3;
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .empty-desc {
+    color: #b0b0b0;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .btn-back-to-workouts {
+    background: #FF8C00;
+    color: #111;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 120ms ease;
+    margin-top: 0.5rem;
+  }
+
+  .btn-back-to-workouts:hover {
+    background: #ff9d1f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
   }
 
   @media (max-width: 640px) {

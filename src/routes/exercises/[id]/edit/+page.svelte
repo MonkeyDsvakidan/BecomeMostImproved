@@ -1,0 +1,421 @@
+<script>
+  import { page } from '$app/stores'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+
+  let form = {
+    name: '',
+    categories: [],
+    level: 'Beginner',
+    description: '',
+    sets: 3,
+    reps: 10,
+    duration: 30
+  }
+
+  let categoryInput = ''
+  let errors = []
+  let loading = false
+  let submitting = false
+
+  async function loadExercise() {
+    const { id } = $page.params
+    loading = true
+    try {
+      const res = await fetch(`/api/exercises/${id}`)
+      if (!res.ok) throw new Error('Failed to load exercise')
+      const exercise = await res.json()
+      form = {
+        name: exercise.name || '',
+        categories: exercise.categories || [],
+        level: exercise.level || 'Beginner',
+        description: exercise.description || '',
+        sets: exercise.sets || 0,
+        reps: exercise.reps || 0,
+        duration: exercise.duration || 0
+      }
+    } catch (e) {
+      errors = [e.message || 'Failed to load exercise']
+    } finally {
+      loading = false
+    }
+  }
+
+  onMount(() => {
+    loadExercise()
+  })
+
+  function addCategory() {
+    const trimmed = categoryInput.trim()
+    if (trimmed && !form.categories.includes(trimmed)) {
+      form.categories = [...form.categories, trimmed]
+      categoryInput = ''
+    }
+  }
+
+  function removeCategory(cat) {
+    form.categories = form.categories.filter((c) => c !== cat)
+  }
+
+  function validateForm() {
+    errors = []
+    if (!form.name.trim()) errors.push('Name is required')
+    if (form.categories.length === 0) errors.push('At least one category is required')
+    if (!form.level) errors.push('Level is required')
+    if (!form.description.trim()) errors.push('Description is required')
+    if (form.sets < 0 || isNaN(form.sets)) errors.push('Sets must be a non-negative number')
+    if (form.reps < 0 || isNaN(form.reps)) errors.push('Reps must be a non-negative number')
+    if (form.duration < 0 || isNaN(form.duration)) errors.push('Duration must be a non-negative number')
+    return errors.length === 0
+  }
+
+  async function handleSubmit() {
+    if (!validateForm()) return
+
+    submitting = true
+    try {
+      const payload = {
+        name: form.name,
+        category: form.categories,
+        level: form.level,
+        description: form.description,
+        sets: form.sets,
+        reps: form.reps,
+        duration: form.duration
+      }
+
+      const res = await fetch(`/api/exercises/${$page.params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        errors = [body.error || res.statusText]
+        submitting = false
+        return
+      }
+
+      const updated = await res.json()
+      alert(`Exercise "${updated.name}" updated successfully!`)
+      goto('/exercises')
+    } catch (e) {
+      errors = [e.message || 'Failed to update exercise']
+      submitting = false
+    }
+  }
+</script>
+
+<section class="page">
+  <header class="header">
+    <h1>Edit Exercise</h1>
+  </header>
+
+  {#if loading}
+    <div class="loading">Loading exercise…</div>
+  {:else}
+    <form on:submit|preventDefault={handleSubmit} class="form">
+      {#if errors.length > 0}
+        <div class="error-box">
+          <strong>Please fix these errors:</strong>
+          <ul>
+            {#each errors as err}
+              <li>{err}</li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
+
+      <div class="form-group">
+        <label for="name">Exercise Name *</label>
+        <input
+          id="name"
+          type="text"
+          bind:value={form.name}
+          placeholder="e.g., Push-ups"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="categoryInput">Categories *</label>
+        <div class="category-input">
+          <input
+            id="categoryInput"
+            type="text"
+            bind:value={categoryInput}
+            placeholder="e.g., Chest, Cardio"
+            on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
+          />
+          <button type="button" on:click={addCategory} class="btn-add">Add</button>
+        </div>
+        {#if form.categories.length > 0}
+          <div class="category-tags">
+            {#each form.categories as cat}
+              <span class="tag">
+                {cat}
+                <button type="button" on:click={() => removeCategory(cat)} class="remove">&times;</button>
+              </span>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <div class="form-group">
+        <label for="level">Level *</label>
+        <select id="level" bind:value={form.level} required>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          bind:value={form.description}
+          placeholder="Describe how to perform this exercise..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sets">Sets *</label>
+          <input id="sets" type="number" bind:value={form.sets} min="0" required />
+        </div>
+        <div class="form-group">
+          <label for="reps">Reps *</label>
+          <input id="reps" type="number" bind:value={form.reps} min="0" required />
+        </div>
+        <div class="form-group">
+          <label for="duration">Duration (minutes) *</label>
+          <input id="duration" type="number" bind:value={form.duration} min="0" required />
+        </div>
+      </div>
+
+      <div class="actions">
+        <a href="/exercises" class="btn-cancel">Cancel</a>
+        <button type="submit" class="btn-submit" disabled={submitting}>
+          {#if submitting}Updating...{:else}Update Exercise{/if}
+        </button>
+      </div>
+    </form>
+  {/if}
+</section>
+
+<style>
+  .page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 1.25rem;
+  }
+
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: #b0b0b0;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .error-box {
+    background: rgba(255, 100, 100, 0.1);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    color: #ff9999;
+  }
+
+  .error-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .error-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  input[type='text'],
+  input[type='number'],
+  select,
+  textarea {
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0.6rem;
+    color: #f5f5f5;
+    font-family: inherit;
+    transition: border-color 160ms ease;
+  }
+
+  input[type='text']:focus,
+  input[type='number']:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #FF8C00;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .category-input {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .category-input input {
+    flex: 1;
+  }
+
+  .btn-add {
+    background: rgba(255, 140, 0, 0.2);
+    border: 1px solid rgba(255, 140, 0, 0.4);
+    color: #ffd9b8;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+
+  .btn-add:hover {
+    background: rgba(255, 140, 0, 0.3);
+    border-color: #FF8C00;
+  }
+
+  .category-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .tag {
+    background: rgba(255, 140, 0, 0.15);
+    color: #ffd9b8;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    transition: opacity 120ms ease;
+  }
+
+  .remove:hover {
+    opacity: 0.7;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: all 120ms ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f5f5f5;
+  }
+
+  .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-submit {
+    background: #FF8C00;
+    color: #111;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    background: #ff9d1f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    .page {
+      padding: 0.75rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+      width: 100%;
+    }
+  }
+</style>
