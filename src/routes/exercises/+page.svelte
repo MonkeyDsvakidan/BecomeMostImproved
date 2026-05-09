@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
   import ExerciseCard from '$lib/components/ExerciseCard.svelte'
 
   let exercises = []
@@ -47,11 +46,6 @@
       deleting.delete(id)
     }
   }
-
-  function startExercise(id) {
-    // Placeholder action for "Start" — navigate or start timer as needed
-    goto(`/exercises/${id}`)
-  }
 </script>
 
 <section class="page">
@@ -74,7 +68,6 @@
       {#each exercises as ex (ex._id)}
         <ExerciseCard
           exercise={ex}
-          onStart={startExercise}
           onDelete={deleteExercise}
         />
       {/each}

@@ -30,7 +30,7 @@
         throw new Error(body.error || res.statusText)
       }
       workout = await res.json()
-      if (currentExercise) {
+      if (workout?.exercises?.length > 0) {
         initializeTimer()
       }
     } catch (e) {
@@ -43,7 +43,8 @@
   function initializeTimer() {
     isTimeUp = false
     showBreakScreen = false
-    timeRemaining = (currentExercise.duration ?? 0) * 60
+    const exercise = workout?.exercises?.[currentIndex]
+    timeRemaining = (exercise?.duration ?? 0) * 60
     if (timeRemaining > 0) {
       startTimer()
     }

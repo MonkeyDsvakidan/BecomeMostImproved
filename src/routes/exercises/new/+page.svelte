@@ -41,37 +41,47 @@
   }
 
   async function handleSubmit() {
-    if (!validateForm()) return
+  if (!validateForm()) return
 
-    loading = true
-    submitted = true
-    try {
-      const res = await fetch('/api/exercises', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      })
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        if (body.errors && Array.isArray(body.errors)) {
-          errors = body.errors
-        } else {
-          errors = [body.error || res.statusText]
-        }
-        loading = false
-        return
-      }
-
-      // Success — show message and redirect
-      const created = await res.json()
-      alert(`Exercise "${created.name}" created successfully!`)
-      goto('/exercises')
-    } catch (e) {
-      errors = [e.message || 'Failed to create exercise']
-      loading = false
+  loading = true
+  submitted = true
+  try {
+    // ⬇️ ÄNDERE HIER: categories → category
+    const payload = {
+      name: form.name,
+      category: form.categories,  // ← Umbenannt von 'categories' zu 'category'
+      level: form.level,
+      description: form.description,
+      sets: form.sets,
+      reps: form.reps,
+      duration: form.duration
     }
+
+    const res = await fetch('/api/exercises', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)  // ← Nutze payload statt form
+    })
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      if (body.errors && Array.isArray(body.errors)) {
+        errors = body.errors
+      } else {
+        errors = [body.error || res.statusText]
+      }
+      loading = false
+      return
+    }
+
+    const created = await res.json()
+    alert(`Exercise "${created.name}" created successfully!`)
+    goto('/exercises')
+  } catch (e) {
+    errors = [e.message || 'Failed to create exercise']
+    loading = false
   }
+}
 </script>
 
 <section class="page">
