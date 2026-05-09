@@ -57,7 +57,10 @@
 <section class="page">
   <header class="header">
     <h1>Exercises</h1>
-    <button class="refresh" on:click={fetchExercises} disabled={loading}>Refresh</button>
+    <div class="actions-top">
+      <button class="refresh" on:click={fetchExercises} disabled={loading}>Refresh</button>
+      <a href="/exercises/new" class="btn-new">Create New Exercise</a>
+    </div>
   </header>
 
   {#if loading}
@@ -101,13 +104,48 @@
 
   h1 { margin: 0; font-size: 1.5rem }
 
-  .refresh {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.06);
-    color: #f5f5f5;
-    padding: 0.4rem 0.6rem;
+  .actions-top {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .refresh,
+  .btn-new {
+    padding: 0.4rem 0.75rem;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 120ms ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .refresh {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #f5f5f5;
+  }
+
+  .refresh:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .btn-new {
+    background: #FF8C00;
+    color: #111;
+    border: none;
+  }
+
+  .btn-new:hover {
+    background: #ff9d1f;
+    transform: translateY(-1px);
+  }
+
+  .refresh:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .loading, .error, .empty {

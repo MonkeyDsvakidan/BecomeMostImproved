@@ -1,7 +1,7 @@
 <script>
   import { page } from '$app/stores'
   const links = [
-    { href: '/', label: 'Dashboard' },
+    { href: '/', label: 'Home' },
     { href: '/workouts', label: 'Workouts' },
     { href: '/exercises', label: 'Exercises' }
   ]
