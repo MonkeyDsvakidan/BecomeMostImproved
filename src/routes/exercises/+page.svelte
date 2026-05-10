@@ -1,10 +1,11 @@
 <script>
-  import { onMount } from 'svelte'
   import ExerciseCard from '$lib/components/ExerciseCard.svelte'
 
-  let exercises = []
-  let loading = true
-  let error = ''
+  export let data
+
+  let exercises = data?.exercises ?? []
+  let loading = false
+  let error = data?.error ?? ''
   const deleting = new Set()
 
   async function fetchExercises() {
@@ -23,10 +24,6 @@
       loading = false
     }
   }
-
-  onMount(() => {
-    fetchExercises()
-  })
 
   async function deleteExercise(id, name) {
     const confirmed = confirm(`Delete exercise "${name}"? This cannot be undone.`)

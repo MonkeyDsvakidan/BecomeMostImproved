@@ -1,10 +1,11 @@
 <script>
-  import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
 
-  let allExercises = []
-  let exercisesLoading = true
-  let errors = []
+  export let data
+
+  let allExercises = data?.exercises ?? []
+  let exercisesLoading = false
+  let errors = data?.error ? [data.error] : []
   let loading = false
   let submitted = false
 
@@ -18,22 +19,6 @@
 
   let categoryInput = ''
   let selectedExercises = new Set()
-
-  async function fetchExercises() {
-    try {
-      const res = await fetch('/api/exercises')
-      if (!res.ok) throw new Error(res.statusText)
-      allExercises = await res.json()
-    } catch (e) {
-      errors = ['Failed to load exercises']
-    } finally {
-      exercisesLoading = false
-    }
-  }
-
-  onMount(() => {
-    fetchExercises()
-  })
 
   function toggleExercise(id) {
     if (selectedExercises.has(id)) {
@@ -165,7 +150,7 @@
 
             <div>
               <div class="d-flex align-items-center justify-content-between mb-2">
-                <label class="form-label text-light fw-semibold mb-0">Select Exercises</label>
+                <span class="form-label text-light fw-semibold mb-0">Select Exercises</span>
                 <span class="text-secondary small">{form.exerciseIds.length} selected</span>
               </div>
 

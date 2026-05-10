@@ -1,50 +1,25 @@
 <script>
-  import { page } from '$app/stores'
-  import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
 
+  export let data
+
+  const exerciseId = data?.exercise?._id ?? ''
+
   let form = {
-    name: '',
-    categories: [],
-    level: 'Beginner',
-    description: '',
-    sets: 3,
-    reps: 10,
-    duration: 30
+    name: data?.exercise?.name ?? '',
+    categories: data?.exercise?.categories ?? [],
+    level: data?.exercise?.level ?? 'Beginner',
+    description: data?.exercise?.description ?? '',
+    sets: data?.exercise?.sets ?? 3,
+    reps: data?.exercise?.reps ?? 10,
+    duration: data?.exercise?.duration ?? 30
   }
 
   let categoryInput = ''
-  let errors = []
+  let errors = data?.error ? [data.error] : []
   let loading = false
   let submitting = false
   let submitted = false
-
-  async function loadExercise() {
-    const { id } = $page.params
-    loading = true
-    try {
-      const res = await fetch(`/api/exercises/${id}`)
-      if (!res.ok) throw new Error('Failed to load exercise')
-      const exercise = await res.json()
-      form = {
-        name: exercise.name || '',
-        categories: exercise.categories || [],
-        level: exercise.level || 'Beginner',
-        description: exercise.description || '',
-        sets: exercise.sets || 0,
-        reps: exercise.reps || 0,
-        duration: exercise.duration || 0
-      }
-    } catch (e) {
-      errors = [e.message || 'Failed to load exercise']
-    } finally {
-      loading = false
-    }
-  }
-
-  onMount(() => {
-    loadExercise()
-  })
 
   function addCategory() {
     const trimmed = categoryInput.trim()
@@ -86,7 +61,7 @@
         duration: form.duration
       }
 
-      const res = await fetch(`/api/exercises/${$page.params.id}`, {
+      const res = await fetch(`/api/exercises/${exerciseId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -221,66 +196,5 @@
     background: #ff9d1f;
     border-color: #ff9d1f;
     color: #111111;
-  }
-</style>
-
-  .btn-cancel,
-  .btn-submit {
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border: none;
-    transition: all 120ms ease;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-  }
-
-  .btn-cancel {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #f5f5f5;
-  }
-
-  .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-submit {
-    background: #FF8C00;
-    color: #111;
-  }
-
-  .btn-submit:hover:not(:disabled) {
-    background: #ff9d1f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-  }
-
-  .btn-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 640px) {
-    .page {
-      padding: 0.75rem;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-
-    .actions {
-      flex-direction: column;
-    }
-
-    .btn-cancel,
-    .btn-submit {
-      width: 100%;
-    }
   }
 </style>

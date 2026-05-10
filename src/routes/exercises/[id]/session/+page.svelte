@@ -1,35 +1,17 @@
 <script>
-  import { page } from '$app/stores'
   import { onMount, onDestroy } from 'svelte'
   import { goto } from '$app/navigation'
 
-  let exercise = null
-  let loading = true
-  let error = ''
+  export let data
+
+  let exercise = data?.exercise ?? null
+  let loading = false
+  let error = data?.error ?? ''
   let isPaused = false
   let isFinished = false
   let timeRemaining = 0
   let timerInterval = null
   let isTimeUp = false
-
-  async function loadExercise() {
-    const { id } = $page.params
-    loading = true
-    error = ''
-    try {
-      const res = await fetch(`/api/exercises/${id}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || res.statusText)
-      }
-      exercise = await res.json()
-      initializeTimer()
-    } catch (e) {
-      error = e.message || 'Failed to load exercise'
-    } finally {
-      loading = false
-    }
-  }
 
   function initializeTimer() {
     isTimeUp = false
@@ -100,7 +82,9 @@
   }
 
   onMount(() => {
-    loadExercise()
+    if (exercise) {
+      initializeTimer()
+    }
   })
 
   onDestroy(() => {

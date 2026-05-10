@@ -1,7 +1,6 @@
 <script>
   import 'bootstrap/dist/css/bootstrap.min.css';
   import { page } from '$app/stores'
-  import { onMount } from 'svelte'
   const links = [
     { href: '/', label: 'Home' },
     { href: '/workouts', label: 'Workouts' },
@@ -9,10 +8,6 @@
   ]
 
   let menuOpen = false
-
-  onMount(async () => {
-    await import('bootstrap/dist/js/bootstrap.bundle.min.js')
-  })
 
   $: if ($page.url.pathname) {
     menuOpen = false
@@ -24,7 +19,7 @@
     :root {
       --bs-primary: #FF8C00;
       --bs-dark: #1a1a1a;
-      --bs-body-bg: #1a1a1a;
+      --bs-body-bg: #121212;
       --bs-body-color: #f5f5f5;
       --bs-secondary: #2a2a2a;
       --bs-border-color: rgba(255, 255, 255, 0.08);
@@ -32,13 +27,18 @@
 
     html,
     body {
-      background: #1a1a1a;
+      background: linear-gradient(180deg, #111111 0%, #1a1a1a 50%, #121212 100%);
       color: #f5f5f5;
       color-scheme: dark;
+      min-height: 100%;
     }
 
     body {
       margin: 0;
+    }
+
+    main {
+      min-height: calc(100vh - 72px);
     }
 
     .navbar-brand-gradient {
@@ -46,6 +46,12 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+    }
+
+    .brand-icon {
+      width: 4rem;
+      height: 4rem;
+      flex: 0 0 auto;
     }
 
     .nav-link {
@@ -62,7 +68,10 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary shadow-sm sticky-top">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand fw-bold navbar-brand-gradient" href="/">BecomeMostImproved</a>
+    <a class="navbar-brand fw-bold navbar-brand-gradient d-flex align-items-center gap-2" href="/">
+      <img src="/icon.svg" alt="" aria-hidden="true" class="brand-icon" />
+      <span>BecomeMostImproved</span>
+    </a>
     <button
       class="navbar-toggler"
       type="button"

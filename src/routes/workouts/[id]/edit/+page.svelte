@@ -1,64 +1,27 @@
 <script>
-  import { page } from '$app/stores'
-  import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
 
-  let allExercises = []
-  let exercisesLoading = true
-  let errors = []
+  export let data
+
+  const workoutId = data?.workout?._id ?? ''
+
+  let allExercises = data?.exercises ?? []
+  let exercisesLoading = false
+  let errors = data?.error ? [data.error] : []
   let loading = false
   let submitting = false
   let submitted = false
 
   let form = {
-    name: '',
-    duration: 30,
-    categories: [],
-    level: 'Beginner',
-    exerciseIds: []
+    name: data?.workout?.name ?? '',
+    duration: data?.workout?.duration ?? 30,
+    categories: data?.workout?.categories ?? [],
+    level: data?.workout?.level ?? 'Beginner',
+    exerciseIds: data?.workout?.exerciseIds ?? []
   }
 
   let categoryInput = ''
-  let selectedExercises = new Set()
-
-  async function fetchExercises() {
-    try {
-      const res = await fetch('/api/exercises')
-      if (!res.ok) throw new Error(res.statusText)
-      allExercises = await res.json()
-    } catch (e) {
-      errors = ['Failed to load exercises']
-    } finally {
-      exercisesLoading = false
-    }
-  }
-
-  async function loadWorkout() {
-    const { id } = $page.params
-    loading = true
-    try {
-      const res = await fetch(`/api/workouts/${id}`)
-      if (!res.ok) throw new Error('Failed to load workout')
-      const workout = await res.json()
-      form = {
-        name: workout.name || '',
-        duration: workout.duration || 30,
-        categories: workout.categories || [],
-        level: workout.level || 'Beginner',
-        exerciseIds: workout.exerciseIds || []
-      }
-      selectedExercises = new Set(form.exerciseIds)
-    } catch (e) {
-      errors = [e.message || 'Failed to load workout']
-    } finally {
-      loading = false
-    }
-  }
-
-  onMount(() => {
-    fetchExercises()
-    loadWorkout()
-  })
+  let selectedExercises = new Set(form.exerciseIds)
 
   function toggleExercise(id) {
     if (selectedExercises.has(id)) {
@@ -98,7 +61,7 @@
 
     submitting = true
     try {
-      const res = await fetch(`/api/workouts/${$page.params.id}`, {
+      const res = await fetch(`/api/workouts/${workoutId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -190,7 +153,7 @@
 
               <div>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <label class="form-label text-light fw-semibold mb-0">Select Exercises</label>
+                  <span class="form-label text-light fw-semibold mb-0">Select Exercises</span>
                   <span class="text-secondary small">{form.exerciseIds.length} selected</span>
                 </div>
 
@@ -250,66 +213,5 @@
     background: #ff9d1f;
     border-color: #ff9d1f;
     color: #111111;
-  }
-</style>
-
-  .btn-cancel,
-  .btn-submit {
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border: none;
-    transition: all 120ms ease;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-  }
-
-  .btn-cancel {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #f5f5f5;
-  }
-
-  .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-submit {
-    background: #FF8C00;
-    color: #111;
-  }
-
-  .btn-submit:hover:not(:disabled) {
-    background: #ff9d1f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-  }
-
-  .btn-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 640px) {
-    .page {
-      padding: 0.75rem;
-    }
-
-    .exercises-list {
-      max-height: 400px;
-    }
-
-    .actions {
-      flex-direction: column;
-    }
-
-    .btn-cancel,
-    .btn-submit {
-      width: 100%;
-    }
   }
 </style>

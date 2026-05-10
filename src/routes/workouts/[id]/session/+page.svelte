@@ -1,11 +1,12 @@
 <script>
-  import { page } from '$app/stores'
   import { onMount, onDestroy } from 'svelte'
   import { goto } from '$app/navigation'
 
-  let workout = null
-  let loading = true
-  let error = ''
+  export let data
+
+  let workout = data?.workout ?? null
+  let loading = false
+  let error = data?.error ?? ''
   let currentIndex = 0
   let isPaused = false
   let isFinished = false
@@ -19,28 +20,6 @@
   $: currentExercise = workout?.exercises?.[currentIndex]
   $: totalExercises = workout?.exercises?.length ?? 0
   $: progressPercent = totalExercises > 0 ? ((currentIndex + 1) / totalExercises) * 100 : 0
-
-  async function loadWorkout() {
-    const { id } = $page.params
-    loading = true
-    error = ''
-    try {
-      const res = await fetch(`/api/workouts/${id}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || res.statusText)
-      }
-      workout = await res.json()
-      sessionStartedAt = Date.now()
-      if (workout?.exercises?.length > 0) {
-        initializeTimer()
-      }
-    } catch (e) {
-      error = e.message || 'Failed to load workout'
-    } finally {
-      loading = false
-    }
-  }
 
   function initializeTimer() {
     isTimeUp = false
@@ -92,7 +71,10 @@
   }
 
   onMount(() => {
-    loadWorkout()
+    sessionStartedAt = Date.now()
+    if (workout?.exercises?.length > 0) {
+      initializeTimer()
+    }
   })
 
   onDestroy(() => {
@@ -342,11 +324,6 @@
     gap: 1rem;
   }
 
-  .session-header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
   .btn-exit {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -582,11 +559,6 @@
     align-items: center;
   }
 
-  .finished-content h1 {
-    margin: 0;
-    font-size: 2.5rem;
-  }
-
   .finished-text {
     color: #d3d3d3;
     font-size: 1.1rem;
@@ -656,12 +628,6 @@
     border-radius: 12px;
   }
 
-  .break-content h2 {
-    margin: 0;
-    font-size: 2rem;
-    color: #4caf50;
-  }
-
   .break-text {
     color: #d3d3d3;
     font-size: 1.1rem;
@@ -715,12 +681,6 @@
     border: 2px solid rgba(255, 100, 100, 0.3);
     border-radius: 12px;
     max-width: 400px;
-  }
-
-  .empty-content h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    color: #ff6464;
   }
 
   .empty-text {
