@@ -15,155 +15,191 @@
   <meta name="description" content="Transform your fitness journey with BallToTheTop" />
 </svelte:head>
 
-<section class="dashboard">
-  <header class="hero">
-    <div class="hero-content">
-      <h1 class="title">Welcome to BallToTheTop</h1>
-      <p class="subtitle">Transform your fitness journey one workout at a time</p>
+<section class="container py-4 dashboard">
+  <div class="card bg-dark border-secondary shadow-lg rounded-3 mb-4 hero-card">
+    <div class="card-body p-4 p-md-5 text-center text-md-start d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+      <div>
+        <h1 class="display-5 fw-bold mb-2">Welcome to BallToTheTop</h1>
+        <p class="lead text-secondary mb-0">Transform your fitness journey one workout at a time.</p>
+      </div>
+      <a href="/workouts/new" class="btn btn-primary btn-orange btn-lg">Create Workout</a>
     </div>
-  </header>
+  </div>
 
-  <section class="stats-section">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">🏋️</div>
-        <div class="stat-info">
-          <span class="stat-label">Total Workouts</span>
-          <span class="stat-number">{totalWorkouts}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">💪</div>
-        <div class="stat-info">
-          <span class="stat-label">Total Exercises</span>
-          <span class="stat-number">{totalExercises}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <div class="stat-info">
-          <span class="stat-label">Completed This Week</span>
-          <span class="stat-number">{stats.workoutsCompletedThisWeek ?? 0}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">⏱</div>
-        <div class="stat-info">
-          <span class="stat-label">Training Minutes</span>
-          <span class="stat-number">{stats.totalTrainingMinutes ?? 0}</span>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="display-6">🏋️</div>
+          <div>
+            <div class="text-secondary small">Total Workouts</div>
+            <div class="display-6 fw-bold text-primary mb-0">{totalWorkouts}</div>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="display-6">💪</div>
+          <div>
+            <div class="text-secondary small">Total Exercises</div>
+            <div class="display-6 fw-bold text-primary mb-0">{totalExercises}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="display-6">✅</div>
+          <div>
+            <div class="text-secondary small">Completed This Week</div>
+            <div class="display-6 fw-bold text-primary mb-0">{stats.workoutsCompletedThisWeek ?? 0}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3 stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="display-6">⏱</div>
+          <div>
+            <div class="text-secondary small">Training Minutes</div>
+            <div class="display-6 fw-bold text-primary mb-0">{stats.totalTrainingMinutes ?? 0}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <section class="insights-section">
-    <div class="insights-grid">
-      <article class="insight-card">
-        <h2 class="section-title">Workout Mix</h2>
-        <div class="insight-list">
-          {#each Object.entries(stats.levelDistribution ?? {}) as [level, count]}
-            <div class="insight-row">
-              <span>{level}</span>
-              <strong>{count}</strong>
-            </div>
-          {/each}
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3">
+        <div class="card-body">
+          <h2 class="h5 fw-bold mb-3">Workout Mix</h2>
+          <div class="list-group list-group-flush rounded-3 overflow-hidden">
+            {#each Object.entries(stats.levelDistribution ?? {}) as [level, count]}
+              <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between align-items-center">
+                <span>{level}</span>
+                <span class="badge bg-primary rounded-pill text-dark">{count}</span>
+              </div>
+            {/each}
+          </div>
           {#if Object.keys(stats.levelDistribution ?? {}).length === 0}
-            <p class="muted-text">No workout levels yet.</p>
+            <p class="text-secondary mb-0">No workout levels yet.</p>
           {/if}
         </div>
-      </article>
-
-      <article class="insight-card">
-        <h2 class="section-title">Top Categories</h2>
-        <div class="insight-list">
-          {#each stats.topCategories ?? [] as item}
-            <div class="insight-row">
-              <span>{item.name}</span>
-              <strong>{item.count}</strong>
-            </div>
-          {/each}
-          {#if (stats.topCategories ?? []).length === 0}
-            <p class="muted-text">No workout categories yet.</p>
-          {/if}
-        </div>
-      </article>
+      </div>
     </div>
-  </section>
+
+    <div class="col-12 col-lg-6">
+      <div class="card bg-dark border-secondary shadow-sm h-100 rounded-3">
+        <div class="card-body">
+          <h2 class="h5 fw-bold mb-3">Top Categories</h2>
+          <div class="list-group list-group-flush rounded-3 overflow-hidden">
+            {#each stats.topCategories ?? [] as item}
+              <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between align-items-center">
+                <span>{item.name}</span>
+                <span class="badge bg-secondary rounded-pill">{item.count}</span>
+              </div>
+            {/each}
+          </div>
+          {#if (stats.topCategories ?? []).length === 0}
+            <p class="text-secondary mb-0">No workout categories yet.</p>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
 
   {#if featuredWorkouts.length > 0}
-    <section class="featured-section">
-      <h2 class="section-title">Featured Workouts</h2>
-      <div class="workouts-grid">
+    <div class="mb-4">
+      <h2 class="h4 fw-bold mb-3">Featured Workouts</h2>
+      <div class="row g-4">
         {#each featuredWorkouts as workout (workout._id)}
-          <article class="workout-card">
-            <div class="card-header">
-              <h3 class="workout-name">{workout.name}</h3>
-              <span class="exercise-badge">{workout.exercises?.length ?? 0}</span>
-            </div>
-
-            <div class="card-meta">
-              <span class="duration">⏱ {workout.duration} min</span>
-              <span class="level">{workout.level}</span>
-            </div>
-
-            {#if workout.categories && workout.categories.length > 0}
-              <div class="categories">
-                {#each workout.categories as cat}
-                  <span class="category-pill">{cat}</span>
-                {/each}
+          <div class="col-12 col-md-6 col-xl-4">
+            <article class="card bg-dark text-light border border-secondary shadow-sm h-100 rounded-3 featured-card">
+              <div class="card-header bg-transparent border-secondary d-flex justify-content-between align-items-start">
+                <h3 class="h5 mb-0 fw-bold">{workout.name}</h3>
+                <span class="badge bg-primary text-dark rounded-pill">{workout.exercises?.length ?? 0}</span>
               </div>
-            {/if}
-
-            <a href="/workouts/{workout._id}/session" class="btn-start">
-              Start Workout
-            </a>
-          </article>
+              <div class="card-body d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between text-secondary small">
+                  <span>⏱ {workout.duration} min</span>
+                  <span>{workout.level}</span>
+                </div>
+                {#if workout.categories && workout.categories.length > 0}
+                  <div class="d-flex flex-wrap gap-2">
+                    {#each workout.categories as cat}
+                      <span class="badge rounded-pill bg-secondary text-light">{cat}</span>
+                    {/each}
+                  </div>
+                {/if}
+                <a href="/workouts/{workout._id}/session" class="btn btn-primary btn-orange mt-auto">Start Workout</a>
+              </div>
+            </article>
+          </div>
         {/each}
       </div>
-    </section>
+    </div>
   {/if}
 
   {#if recentActivity.length > 0}
-    <section class="recent-section">
-      <h2 class="section-title">Recent Activity</h2>
-      <div class="recent-list">
+    <div class="mb-4">
+      <h2 class="h4 fw-bold mb-3">Recent Activity</h2>
+      <div class="row g-3">
         {#each recentActivity as session (session._id)}
-          <article class="recent-card">
-            <div class="recent-main">
-              <strong>{session.workoutName}</strong>
-              <span>{new Date(session.completedAt).toLocaleString()}</span>
+          <div class="col-12">
+            <div class="card bg-dark border-secondary shadow-sm rounded-3">
+              <div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3">
+                <div>
+                  <h3 class="h6 fw-bold mb-1">{session.workoutName}</h3>
+                  <div class="text-secondary small">{new Date(session.completedAt).toLocaleString()}</div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <span class="badge bg-secondary text-light rounded-pill">{session.exerciseCount} exercises</span>
+                  <span class="badge bg-secondary text-light rounded-pill">{session.actualDurationSeconds > 0 ? `${Math.round(session.actualDurationSeconds / 60)} min` : `${session.plannedDuration} min`}</span>
+                  <span class="badge bg-primary text-dark rounded-pill">{session.level}</span>
+                </div>
+              </div>
             </div>
-            <div class="recent-meta">
-              <span>{session.exerciseCount} exercises</span>
-              <span>{session.actualDurationSeconds > 0 ? `${Math.round(session.actualDurationSeconds / 60)} min` : `${session.plannedDuration} min`}</span>
-              <span>{session.level}</span>
-            </div>
-          </article>
+          </div>
         {/each}
       </div>
-    </section>
+    </div>
   {/if}
 
-  <section class="cta-section">
-    <div class="cta-grid">
-      {#if totalWorkouts > 3}
-        <a href="/workouts" class="cta-card">
-          <span class="cta-icon">🎯</span>
-          <span class="cta-text">View All Workouts</span>
+  <div class="row g-3">
+    {#if totalWorkouts > 3}
+      <div class="col-12 col-md-4">
+        <a href="/workouts" class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100">
+          <div class="card-body text-center py-4">
+            <div class="display-6 mb-2">🎯</div>
+            <div class="fw-semibold">View All Workouts</div>
+          </div>
         </a>
-      {/if}
-      {#if totalExercises > 0}
-        <a href="/exercises" class="cta-card">
-          <span class="cta-icon">📋</span>
-          <span class="cta-text">Browse Exercises</span>
+      </div>
+    {/if}
+    {#if totalExercises > 0}
+      <div class="col-12 col-md-4">
+        <a href="/exercises" class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100">
+          <div class="card-body text-center py-4">
+            <div class="display-6 mb-2">📋</div>
+            <div class="fw-semibold">Browse Exercises</div>
+          </div>
         </a>
-      {/if}
-      <a href="/workouts/new" class="cta-card cta-create">
-        <span class="cta-icon">➕</span>
-        <span class="cta-text">Create Workout</span>
+      </div>
+    {/if}
+    <div class="col-12 col-md-4">
+      <a href="/workouts/new" class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100">
+        <div class="card-body text-center py-4">
+          <div class="display-6 mb-2">➕</div>
+          <div class="fw-semibold">Create Workout</div>
+        </div>
       </a>
     </div>
-  </section>
+  </div>
 </section>
 
 <style>
@@ -176,6 +212,29 @@
     border-bottom: 1px solid rgba(255, 140, 0, 0.2);
     padding: 3rem 1.25rem;
     text-align: center;
+  }
+
+  .btn-orange {
+    background: #FF8C00;
+    border-color: #FF8C00;
+    color: #111111;
+  }
+
+  .btn-orange:hover,
+  .btn-orange:focus {
+    background: #ff9d1f;
+    border-color: #ff9d1f;
+    color: #111111;
+  }
+
+  .dashboard-link {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+
+  .dashboard-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(255, 140, 0, 0.35) !important;
   }
 
   .hero-content {

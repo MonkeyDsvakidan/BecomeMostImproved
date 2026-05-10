@@ -5,168 +5,56 @@
   const { _id, name, duration = 0, categories = [], level = 'N/A', exercises = [] } = workout
 </script>
 
-<article class="card">
-  <div class="card-head">
-    <h2 class="name">{name}</h2>
-    <span class="exercise-count">{exercises.length} exercises</span>
-  </div>
-
-  <div class="meta">
-    <span class="duration">⏱ {duration} min</span>
-    <span class="level-badge">Level: <strong>{level}</strong></span>
-  </div>
-
-  {#if categories && categories.length > 0}
-    <div class="categories">
-      {#each categories as cat}
-        <span class="category-tag">{cat}</span>
-      {/each}
+<article class="card bg-dark text-light border border-secondary shadow-sm h-100 rounded-3 workout-card">
+  <div class="card-header bg-transparent border-secondary d-flex flex-column gap-2">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <h2 class="h5 mb-0 fw-bold">{name}</h2>
+      <span class="badge rounded-pill bg-primary text-dark">{exercises.length} exercises</span>
     </div>
-  {/if}
+    <div class="d-flex gap-2 flex-wrap">
+      {#if categories && categories.length > 0}
+        {#each categories as cat}
+          <span class="badge rounded-pill bg-secondary text-light">{cat}</span>
+        {/each}
+      {/if}
+    </div>
+  </div>
 
-  <div class="actions">
-    <a href="/workouts/{_id}/session" class="btn-start">Start</a>
-    <a href="/workouts/{_id}/edit" class="btn-edit">Edit</a>
-    <button class="btn-delete" on:click={() => onDelete(_id, name)}>Delete</button>
+  <div class="card-body d-flex flex-column gap-3">
+    <div class="d-flex justify-content-between text-secondary small">
+      <span><strong class="text-light">Level</strong>: {level}</span>
+      <span>⏱ {duration} min</span>
+    </div>
+
+    <div class="btn-group mt-auto" role="group" aria-label="Workout actions">
+      <a href="/workouts/{_id}/session" class="btn btn-primary btn-orange">Start</a>
+      <a href="/workouts/{_id}/edit" class="btn btn-outline-info">Edit</a>
+      <button class="btn btn-outline-danger" on:click={() => onDelete(_id, name)}>Delete</button>
+    </div>
   </div>
 </article>
 
 <style>
-  .card {
-    background: #2a2a2a;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    transition: all 160ms ease;
+  .workout-card {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   }
 
-  .card:hover {
-    border-color: rgba(255, 140, 0, 0.3);
-    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.1);
+  .workout-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(255, 140, 0, 0.35) !important;
   }
 
-  .card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .name {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #ffffff;
-  }
-
-  .exercise-count {
-    background: rgba(255, 140, 0, 0.15);
-    color: #ffd9b8;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .meta {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.9rem;
-    color: #c5c5c5;
-  }
-
-  .duration {
-    font-weight: 500;
-  }
-
-  .level-badge {
-    font-weight: 500;
-  }
-
-  .categories {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  .category-tag {
-    background: rgba(255, 255, 255, 0.03);
-    color: #ffd9b8;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    margin-top: 0.25rem;
-  }
-
-  .btn-start,
-  .btn-edit,
-  .btn-delete {
-    padding: 0.45rem 0.7rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 120ms ease;
-  }
-
-  .btn-start {
+  .btn-orange {
     background: #FF8C00;
+    border-color: #FF8C00;
     color: #111111;
-    text-decoration: none;
-    display: inline-block;
   }
 
-  .btn-start:hover {
+  .btn-orange:hover,
+  .btn-orange:focus {
     background: #ff9d1f;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
-  }
-
-  .btn-start:active {
-    transform: translateY(0);
-  }
-
-  .btn-edit {
-    background: rgba(100, 200, 255, 0.15);
-    color: #7ec8ff;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-edit:hover {
-    background: rgba(100, 200, 255, 0.25);
-    transform: translateY(-1px);
-  }
-
-  .btn-delete {
-    background: rgba(255, 255, 255, 0.06);
-    color: #f5f5f5;
-  }
-
-  .btn-delete:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
-  }
-
-  .btn-delete:active {
-    background: rgba(255, 255, 255, 0.09);
-  }
-
-  .btn-start:disabled,
-  .btn-delete:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    border-color: #ff9d1f;
+    color: #111111;
   }
 </style>

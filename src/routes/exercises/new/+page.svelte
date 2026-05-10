@@ -41,265 +41,159 @@
   }
 
   async function handleSubmit() {
-  if (!validateForm()) return
+    submitted = true
+    if (!validateForm()) return
 
-  loading = true
-  submitted = true
-  try {
-    // ⬇️ ÄNDERE HIER: categories → category
-    const payload = {
-      name: form.name,
-      category: form.categories,  // ← Umbenannt von 'categories' zu 'category'
-      level: form.level,
-      description: form.description,
-      sets: form.sets,
-      reps: form.reps,
-      duration: form.duration
-    }
-
-    const res = await fetch('/api/exercises', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)  // ← Nutze payload statt form
-    })
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      if (body.errors && Array.isArray(body.errors)) {
-        errors = body.errors
-      } else {
-        errors = [body.error || res.statusText]
+    loading = true
+    try {
+      const payload = {
+        name: form.name,
+        category: form.categories,
+        level: form.level,
+        description: form.description,
+        sets: form.sets,
+        reps: form.reps,
+        duration: form.duration
       }
-      loading = false
-      return
-    }
 
-    const created = await res.json()
-    alert(`Exercise "${created.name}" created successfully!`)
-    goto('/exercises')
-  } catch (e) {
-    errors = [e.message || 'Failed to create exercise']
-    loading = false
+      const res = await fetch('/api/exercises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        if (body.errors && Array.isArray(body.errors)) {
+          errors = body.errors
+        } else {
+          errors = [body.error || res.statusText]
+        }
+        loading = false
+        return
+      }
+
+      const created = await res.json()
+      alert(`Exercise "${created.name}" created successfully!`)
+      goto('/exercises')
+    } catch (e) {
+      errors = [e.message || 'Failed to create exercise']
+      loading = false
+    }
   }
-}
 </script>
 
-<section class="page">
-  <header class="header">
-    <h1>Create New Exercise</h1>
-  </header>
+<section class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+      <div class="card bg-dark text-light border border-secondary shadow-lg rounded-3">
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex flex-column gap-2 mb-4">
+            <h1 class="display-6 fw-bold mb-0">Create New Exercise</h1>
+            <p class="text-secondary mb-0">Set up a drill with categories, difficulty, and timing.</p>
+          </div>
 
-  <form on:submit|preventDefault={handleSubmit} class="form">
-    {#if errors.length > 0}
-      <div class="error-box">
-        <strong>Please fix these errors:</strong>
-        <ul>
-          {#each errors as err}
-            <li>{err}</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
+          <form on:submit|preventDefault={handleSubmit} class="d-flex flex-column gap-4">
+            {#if errors.length > 0}
+              <div class="alert alert-danger rounded-3 shadow-sm mb-0">
+                <strong class="d-block mb-2">Please fix these errors:</strong>
+                <ul class="mb-0 ps-3">
+                  {#each errors as err}
+                    <li>{err}</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
 
-    <div class="form-group">
-      <label for="name">Exercise Name *</label>
-      <input
-        id="name"
-        type="text"
-        bind:value={form.name}
-        placeholder="e.g., Push-ups"
-        required
-      />
-    </div>
+            <div class="form-floating">
+              <input id="name" class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`} type="text" bind:value={form.name} placeholder="e.g., Push-ups" required />
+              <label for="name">Exercise Name</label>
+            </div>
 
-    <div class="form-group">
-      <label for="categoryInput">Categories *</label>
-      <div class="category-input">
-        <input
-          id="categoryInput"
-          type="text"
-          bind:value={categoryInput}
-          placeholder="e.g., Chest, Cardio"
-          on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
-        />
-        <button type="button" on:click={addCategory} class="btn-add">Add</button>
-      </div>
-      {#if form.categories.length > 0}
-        <div class="category-tags">
-          {#each form.categories as cat}
-            <span class="tag">
-              {cat}
-              <button type="button" on:click={() => removeCategory(cat)} class="remove">&times;</button>
-            </span>
-          {/each}
+            <div>
+              <label class="form-label text-light fw-semibold" for="categoryInput">Categories</label>
+              <div class="input-group">
+                <input id="categoryInput" type="text" class="form-control bg-dark text-light border-secondary" bind:value={categoryInput} placeholder="e.g., Chest, Cardio" on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())} />
+                <button type="button" class="btn btn-outline-warning" on:click={addCategory}>Add</button>
+              </div>
+              {#if submitted && form.categories.length === 0}
+                <div class="text-danger small mt-2">At least one category is required.</div>
+              {/if}
+              {#if form.categories.length > 0}
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                  {#each form.categories as cat}
+                    <span class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2">
+                      {cat}
+                      <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove category" on:click={() => removeCategory(cat)}></button>
+                    </span>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label text-light fw-semibold" for="level">Level</label>
+                <select id="level" class="form-select bg-dark text-light border-secondary" bind:value={form.level} required>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-light fw-semibold" for="sets">Sets</label>
+                <input id="sets" class={`form-control bg-dark text-light border-secondary ${submitted && (form.sets < 0 || isNaN(form.sets)) ? 'is-invalid' : ''}`} type="number" bind:value={form.sets} min="0" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-light fw-semibold" for="reps">Reps</label>
+                <input id="reps" class={`form-control bg-dark text-light border-secondary ${submitted && (form.reps < 0 || isNaN(form.reps)) ? 'is-invalid' : ''}`} type="number" bind:value={form.reps} min="0" required />
+              </div>
+            </div>
+
+            <div class="form-floating">
+              <textarea id="description" class={`form-control bg-dark text-light border-secondary ${submitted && !form.description.trim() ? 'is-invalid' : ''}`} bind:value={form.description} placeholder="Describe how to perform this exercise..." style="height: 140px" required></textarea>
+              <label for="description">Description</label>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-light fw-semibold" for="duration">Duration (minutes)</label>
+                <input id="duration" class={`form-control bg-dark text-light border-secondary ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`} type="number" bind:value={form.duration} min="0" required />
+              </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-2">
+              <a href="/exercises" class="btn btn-outline-light">Cancel</a>
+              <button type="submit" class="btn btn-primary btn-orange" disabled={loading}>
+                {#if loading}
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  Creating...
+                {:else}
+                  Create Exercise
+                {/if}
+              </button>
+            </div>
+          </form>
         </div>
-      {/if}
-    </div>
-
-    <div class="form-group">
-      <label for="level">Level *</label>
-      <select id="level" bind:value={form.level} required>
-        <option value="Beginner">Beginner</option>
-        <option value="Intermediate">Intermediate</option>
-        <option value="Advanced">Advanced</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="description">Description *</label>
-      <textarea
-        id="description"
-        bind:value={form.description}
-        placeholder="Describe how to perform this exercise..."
-        required
-      ></textarea>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="sets">Sets *</label>
-        <input id="sets" type="number" bind:value={form.sets} min="0" required />
-      </div>
-      <div class="form-group">
-        <label for="reps">Reps *</label>
-        <input id="reps" type="number" bind:value={form.reps} min="0" required />
-      </div>
-      <div class="form-group">
-        <label for="duration">Duration (minutes) *</label>
-        <input id="duration" type="number" bind:value={form.duration} min="0" required />
       </div>
     </div>
-
-    <div class="actions">
-      <a href="/exercises" class="btn-cancel">Cancel</a>
-      <button type="submit" class="btn-submit" disabled={loading}>
-        {#if loading}Creating...{:else}Create Exercise{/if}
-      </button>
-    </div>
-  </form>
+  </div>
 </section>
 
 <style>
-  .page {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 1.25rem;
-  }
-
-  .header {
-    margin-bottom: 1.5rem;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .error-box {
-    background: rgba(220, 50, 50, 0.15);
-    border: 1px solid rgba(220, 50, 50, 0.4);
-    color: #ff9999;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-  }
-
-  .error-box strong {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .error-box ul {
-    margin: 0;
-    padding-left: 1.5rem;
-  }
-
-  .error-box li {
-    margin: 0.25rem 0;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-  }
-
-  label {
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 0.95rem;
-  }
-
-  input[type='text'],
-  input[type='number'],
-  select,
-  textarea {
-    background: #2a2a2a;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f5f5f5;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: border-color 160ms ease;
-  }
-
-  input[type='text']:focus,
-  input[type='number']:focus,
-  select:focus,
-  textarea:focus {
-    outline: none;
+  .btn-orange {
+    background: #FF8C00;
     border-color: #FF8C00;
-    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+    color: #111111;
   }
 
-  textarea {
-    min-height: 120px;
-    resize: vertical;
+  .btn-orange:hover,
+  .btn-orange:focus {
+    background: #ff9d1f;
+    border-color: #ff9d1f;
+    color: #111111;
   }
-
-  .category-input {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .category-input input {
-    flex: 1;
-  }
-
-  .btn-add {
-    background: rgba(255, 140, 0, 0.2);
-    border: 1px solid rgba(255, 140, 0, 0.4);
-    color: #ffd9b8;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 120ms ease;
-  }
-
-  .btn-add:hover {
-    background: rgba(255, 140, 0, 0.3);
-    border-color: #FF8C00;
-  }
-
-  .category-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
+</style>
   .tag {
     background: rgba(255, 140, 0, 0.15);
     color: #ffd9b8;

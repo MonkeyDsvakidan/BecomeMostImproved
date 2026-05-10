@@ -184,110 +184,129 @@
   }
 </script>
 
-<section class="page">
+<section class="container py-4 workout-session">
   {#if loading}
-    <div class="loading">Loading workout…</div>
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading workout"></div>
+      <p class="mt-3 text-secondary mb-0">Loading workout…</p>
+    </div>
   {:else if error}
-    <div class="error">{error}</div>
+    <div class="alert alert-danger rounded-3 shadow-sm">{error}</div>
   {:else if isFinished}
-    <div class="finished-screen">
-      <div class="finished-content">
-        <h1>🎉 Workout Complete!</h1>
-        <p class="finished-text">Great job! You've finished <strong>{workout.name}</strong>.</p>
-        <div class="finished-stats">
-          <div class="stat">
-            <span class="stat-label">Exercises Completed</span>
-            <span class="stat-value">{totalExercises}</span>
+    <div class="card bg-dark border-secondary shadow-lg rounded-3 mx-auto" style="max-width: 760px;">
+      <div class="card-body p-4 p-md-5 text-center">
+        <div class="display-4 mb-3">🎉</div>
+        <h1 class="display-6 fw-bold mb-3">Workout Complete!</h1>
+        <p class="text-secondary mb-4">Great job! You've finished <strong class="text-light">{workout.name}</strong>.</p>
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <div class="p-3 bg-black bg-opacity-25 border border-secondary rounded-3 h-100">
+              <div class="text-secondary small">Exercises Completed</div>
+              <div class="display-6 fw-bold text-primary">{totalExercises}</div>
+            </div>
           </div>
-          <div class="stat">
-            <span class="stat-label">Total Duration</span>
-            <span class="stat-value">{workout.duration} min</span>
+          <div class="col-12 col-md-6">
+            <div class="p-3 bg-black bg-opacity-25 border border-secondary rounded-3 h-100">
+              <div class="text-secondary small">Total Duration</div>
+              <div class="display-6 fw-bold text-primary">{workout.duration} min</div>
+            </div>
           </div>
         </div>
-        <button class="btn-back" on:click={goBack}>Back to Workouts</button>
+        <button class="btn btn-primary btn-orange btn-lg" on:click={goBack}>Back to Workouts</button>
       </div>
     </div>
   {:else if showBreakScreen}
-    <div class="break-screen">
-      <div class="break-content">
-        <h2>Great work! 💪</h2>
-        <p class="break-text">Take a short break</p>
-        <div class="break-timer">{breakTimeRemaining}s</div>
-        <p class="break-next">Next: <strong>{currentIndex + 1 < totalExercises ? workout.exercises[currentIndex + 1].name : 'Finish'}</strong></p>
-        <button class="btn-skip-break" on:click={nextExercise}>Skip Break</button>
+    <div class="alert alert-warning border-0 shadow-sm rounded-3 mx-auto" style="max-width: 760px;">
+      <div class="d-flex flex-column align-items-center text-center gap-3 py-3">
+        <div class="display-5">💪</div>
+        <h2 class="h3 fw-bold mb-0">Great work!</h2>
+        <p class="mb-0">Take a short break before the next exercise.</p>
+        <div class="display-4 fw-bold text-dark bg-white rounded-3 px-4 py-2">{breakTimeRemaining}s</div>
+        <p class="mb-0">Next: <strong>{currentIndex + 1 < totalExercises ? workout.exercises[currentIndex + 1].name : 'Finish'}</strong></p>
+        <button class="btn btn-dark" on:click={nextExercise}>Skip Break</button>
       </div>
     </div>
   {:else if totalExercises === 0}
-    <div class="empty-state">
-      <div class="empty-content">
-        <h1>❌ No Exercises</h1>
-        <p class="empty-text">This workout doesn't have any exercises yet.</p>
-        <p class="empty-desc">Add exercises to this workout before you can start it.</p>
-        <a href="/workouts" class="btn-back-to-workouts">Back to Workouts</a>
+    <div class="card bg-dark border-secondary shadow-sm rounded-3 mx-auto" style="max-width: 760px;">
+      <div class="card-body p-5 text-center">
+        <div class="display-4 mb-3">❌</div>
+        <h1 class="h2 fw-bold">No Exercises</h1>
+        <p class="text-secondary mb-3">This workout doesn't have any exercises yet.</p>
+        <p class="text-secondary">Add exercises to this workout before you can start it.</p>
+        <a href="/workouts" class="btn btn-outline-light">Back to Workouts</a>
       </div>
     </div>
   {:else if currentExercise}
-    <header class="session-header">
-      <h1>{workout.name}</h1>
-      <button class="btn-exit" on:click={goBack}>Exit</button>
-    </header>
-
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: {progressPercent}%"></div>
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+      <div>
+        <h1 class="display-6 fw-bold mb-1">{workout.name}</h1>
+        <p class="text-secondary mb-0">Exercise {currentIndex + 1} of {totalExercises}</p>
       </div>
-      <p class="progress-text">Exercise {currentIndex + 1} of {totalExercises}</p>
+      <button class="btn btn-outline-light" on:click={goBack}>Exit</button>
     </div>
 
-    <div class="exercise-card">
-      <h2 class="exercise-name">{currentExercise.name}</h2>
+    <div class="progress mb-4" style="height: 10px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: {progressPercent}%" aria-valuenow={progressPercent} aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
 
-      <p class="exercise-description">{currentExercise.description}</p>
+    <div class="card bg-dark border-secondary shadow-lg rounded-3 mb-4">
+      <div class="card-body p-4 p-md-5 d-flex flex-column gap-4">
+        <div class="d-flex flex-column gap-2">
+          <h2 class="display-6 fw-bold mb-0">{currentExercise.name}</h2>
+          <p class="text-secondary mb-0">{currentExercise.description}</p>
+        </div>
 
-      <div class="exercise-details">
-        {#if currentExercise.sets !== undefined}
-          <div class="detail-item">
-            <span class="detail-label">Sets</span>
-            <span class="detail-value">{currentExercise.sets}</span>
-          </div>
-        {/if}
-        {#if currentExercise.reps !== undefined}
-          <div class="detail-item">
-            <span class="detail-label">Reps</span>
-            <span class="detail-value">{currentExercise.reps}</span>
-          </div>
-        {/if}
-        {#if currentExercise.duration !== undefined}
-          <div class="detail-item">
-            <span class="detail-label">Duration</span>
-            <span class="detail-value">{currentExercise.duration} min</span>
-          </div>
-        {/if}
-      </div>
-
-      {#if currentExercise.duration}
-        <div class="timer" class:time-up={isTimeUp}>
-          <div class="timer-display">{formatTime(timeRemaining)}</div>
-          <div class="timer-note">{isTimeUp ? "Time's Up!" : isPaused ? 'Paused' : 'Timer'}</div>
-          {#if isTimeUp}
-            <button class="btn-time-up" on:click={continueAfterTimeUp}>Continue</button>
+        <div class="row g-3">
+          {#if currentExercise.sets !== undefined}
+            <div class="col-12 col-md-4">
+              <div class="p-3 rounded-3 bg-black bg-opacity-25 border border-secondary h-100 text-center">
+                <div class="text-secondary small">Sets</div>
+                <div class="display-6 fw-bold text-primary">{currentExercise.sets}</div>
+              </div>
+            </div>
+          {/if}
+          {#if currentExercise.reps !== undefined}
+            <div class="col-12 col-md-4">
+              <div class="p-3 rounded-3 bg-black bg-opacity-25 border border-secondary h-100 text-center">
+                <div class="text-secondary small">Reps</div>
+                <div class="display-6 fw-bold text-primary">{currentExercise.reps}</div>
+              </div>
+            </div>
+          {/if}
+          {#if currentExercise.duration !== undefined}
+            <div class="col-12 col-md-4">
+              <div class="p-3 rounded-3 bg-black bg-opacity-25 border border-secondary h-100 text-center">
+                <div class="text-secondary small">Duration</div>
+                <div class="display-6 fw-bold text-primary">{currentExercise.duration} min</div>
+              </div>
+            </div>
           {/if}
         </div>
-      {/if}
 
-      <div class="exercise-categories">
-        {#each currentExercise.category ?? [] as cat}
-          <span class="category-badge">{cat}</span>
-        {/each}
+        {#if currentExercise.duration}
+          <div class={`text-center p-4 rounded-3 border ${isTimeUp ? 'bg-success bg-opacity-10 border-success' : 'bg-black bg-opacity-25 border-secondary'}`}>
+            <div class="display-1 fw-bold timer-display mb-2">{formatTime(timeRemaining)}</div>
+            <div class="text-secondary mb-3">{isTimeUp ? "Time's Up!" : isPaused ? 'Paused' : 'Timer'}</div>
+            {#if isTimeUp}
+              <button class="btn btn-primary btn-orange" on:click={continueAfterTimeUp}>Continue</button>
+            {/if}
+          </div>
+        {/if}
+
+        <div class="d-flex flex-wrap gap-2">
+          {#each currentExercise.category ?? [] as cat}
+            <span class="badge rounded-pill bg-secondary text-light px-3 py-2">{cat}</span>
+          {/each}
+        </div>
       </div>
     </div>
 
-    <div class="controls">
-      <button class="btn-control btn-pause" on:click={togglePause}>
+    <div class="d-flex flex-column flex-md-row gap-2 justify-content-end">
+      <button class="btn btn-outline-warning" on:click={togglePause}>
         {isPaused ? '▶ Resume' : '⏸ Pause'}
       </button>
-      <button class="btn-control btn-skip" on:click={skipExercise}>Skip</button>
-      <button class="btn-control btn-next" on:click={nextExercise}>
+      <button class="btn btn-outline-light" on:click={skipExercise}>Skip</button>
+      <button class="btn btn-primary btn-orange" on:click={nextExercise}>
         {currentIndex < totalExercises - 1 ? 'Next Exercise' : 'Finish Workout'}
       </button>
     </div>

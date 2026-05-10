@@ -52,147 +52,61 @@
   }
 </script>
 
-<section class="page">
-  <header class="header">
-    <h1>Workouts</h1>
-    <div class="actions-top">
-      <button class="refresh" on:click={fetchWorkouts} disabled={loading}>Refresh</button>
-      <a href="/workouts/new" class="btn-new">Create New Workout</a>
+<section class="container py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h1 class="display-6 fw-bold mb-1">Workouts</h1>
+      <p class="text-secondary mb-0">Manage workout plans and launch sessions quickly.</p>
     </div>
-  </header>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-light" on:click={fetchWorkouts} disabled={loading}>
+        {#if loading}
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          Refreshing
+        {:else}
+          Refresh
+        {/if}
+      </button>
+      <a href="/workouts/new" class="btn btn-primary btn-orange">Create New Workout</a>
+    </div>
+  </div>
 
   {#if loading}
-    <div class="loading">Loading workouts…</div>
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading workouts"></div>
+      <p class="mt-3 text-secondary mb-0">Loading workouts…</p>
+    </div>
   {:else if error}
-    <div class="error">{error}</div>
+    <div class="alert alert-danger rounded-3 shadow-sm">{error}</div>
   {:else if workouts.length === 0}
-    <div class="empty">No workouts found. <a href="/workouts/new">Create one</a>.</div>
+    <div class="text-center py-5 bg-dark border border-secondary rounded-3 shadow-sm">
+      <div class="display-4 mb-3">🎯</div>
+      <h2 class="h4">No workouts found</h2>
+      <p class="text-secondary mb-3">Create a workout by combining exercises into a session.</p>
+      <a href="/workouts/new" class="btn btn-primary btn-orange">Create Workout</a>
+    </div>
   {:else}
-    <div class="grid">
+    <div class="row g-4">
       {#each workouts as workout (workout._id)}
-        <WorkoutCard
-          {workout}
-          onDelete={deleteWorkout}
-        />
+        <div class="col-12 col-md-6 col-lg-4">
+          <WorkoutCard {workout} onDelete={deleteWorkout} />
+        </div>
       {/each}
     </div>
   {/if}
 </section>
 
 <style>
-  :global(body) {
-    background: #1a1a1a;
-    color: #f5f5f5;
-  }
-
-  .page {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 1.25rem;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
-  .actions-top {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .refresh,
-  .btn-new {
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 120ms ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .refresh {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #f5f5f5;
-  }
-
-  .refresh:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .btn-new {
+  .btn-orange {
     background: #FF8C00;
-    color: #111;
-    border: none;
+    border-color: #FF8C00;
+    color: #111111;
   }
 
-  .btn-new:hover {
+  .btn-orange:hover,
+  .btn-orange:focus {
     background: #ff9d1f;
-    transform: translateY(-1px);
-  }
-
-  .refresh:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .loading,
-  .error,
-  .empty {
-    padding: 2rem;
-    text-align: center;
-    color: #ccc;
-  }
-
-  .empty a {
-    color: #FF8C00;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .empty a:hover {
-    text-decoration: underline;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
-  }
-
-  @media (max-width: 640px) {
-    .page {
-      padding: 0.75rem;
-    }
-
-    .header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .actions-top {
-      width: 100%;
-    }
-
-    .refresh,
-    .btn-new {
-      flex: 1;
-    }
-
-    .grid {
-      grid-template-columns: 1fr;
-    }
+    border-color: #ff9d1f;
+    color: #111111;
   }
 </style>

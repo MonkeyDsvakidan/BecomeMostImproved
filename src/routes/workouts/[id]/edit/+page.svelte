@@ -8,6 +8,7 @@
   let errors = []
   let loading = false
   let submitting = false
+  let submitted = false
 
   let form = {
     name: '',
@@ -92,6 +93,7 @@
   }
 
   async function handleSubmit() {
+    submitted = true
     if (!validateForm()) return
 
     submitting = true
@@ -119,307 +121,137 @@
   }
 </script>
 
-<section class="page">
-  <header class="header">
-    <h1>Edit Workout</h1>
-  </header>
-
-  {#if loading || exercisesLoading}
-    <div class="loading">Loading workout…</div>
-  {:else}
-    <form on:submit|preventDefault={handleSubmit} class="form">
-      {#if errors.length > 0}
-        <div class="error-box">
-          <strong>Please fix these errors:</strong>
-          <ul>
-            {#each errors as err}
-              <li>{err}</li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
-
-      <div class="form-group">
-        <label for="name">Workout Name *</label>
-        <input
-          id="name"
-          type="text"
-          bind:value={form.name}
-          placeholder="e.g., Full Body Strength"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="duration">Duration (minutes) *</label>
-        <input id="duration" type="number" bind:value={form.duration} min="1" required />
-      </div>
-
-      <div class="form-group">
-        <label for="categoryInput">Categories *</label>
-        <div class="category-input">
-          <input
-            id="categoryInput"
-            type="text"
-            bind:value={categoryInput}
-            placeholder="e.g., Strength, Cardio"
-            on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
-          />
-          <button type="button" on:click={addCategory} class="btn-add">Add</button>
-        </div>
-        {#if form.categories.length > 0}
-          <div class="category-tags">
-            {#each form.categories as cat}
-              <span class="tag">
-                {cat}
-                <button type="button" on:click={() => removeCategory(cat)} class="remove">&times;</button>
-              </span>
-            {/each}
+<section class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+      <div class="card bg-dark text-light border border-secondary shadow-lg rounded-3">
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex flex-column gap-2 mb-4">
+            <h1 class="display-6 fw-bold mb-0">Edit Workout</h1>
+            <p class="text-secondary mb-0">Update the workout setup and the exercises inside it.</p>
           </div>
-        {/if}
-      </div>
 
-      <div class="form-group">
-        <label for="level">Level *</label>
-        <select id="level" bind:value={form.level} required>
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
-        </select>
-      </div>
+          {#if loading || exercisesLoading}
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status" aria-label="Loading workout"></div>
+              <p class="mt-3 text-secondary mb-0">Loading workout…</p>
+            </div>
+          {:else}
+            <form on:submit|preventDefault={handleSubmit} class="d-flex flex-column gap-4">
+              {#if errors.length > 0}
+                <div class="alert alert-danger rounded-3 shadow-sm mb-0">
+                  <strong class="d-block mb-2">Please fix these errors:</strong>
+                  <ul class="mb-0 ps-3">
+                    {#each errors as err}
+                      <li>{err}</li>
+                    {/each}
+                  </ul>
+                </div>
+              {/if}
 
-      <div class="form-group">
-        <label>Exercises * ({form.exerciseIds.length} selected)</label>
-        <div class="exercises-list">
-          {#each allExercises as exercise (exercise._id)}
-            <label class="exercise-item">
-              <input
-                type="checkbox"
-                checked={selectedExercises.has(exercise._id)}
-                on:change={() => toggleExercise(exercise._id)}
-              />
-              <span class="exercise-info">
-                <strong>{exercise.name}</strong>
-                <span class="exercise-meta">
-                  {#each exercise.categories as cat}
-                    <span class="badge">{cat}</span>
-                  {/each}
-                  <span class="level-badge">{exercise.level}</span>
-                </span>
-              </span>
-            </label>
-          {/each}
+              <div class="form-floating">
+                <input id="name" class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`} type="text" bind:value={form.name} placeholder="e.g., Full Body Strength" required />
+                <label for="name">Workout Name</label>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label text-light fw-semibold" for="duration">Duration (minutes)</label>
+                  <input id="duration" class={`form-control bg-dark text-light border-secondary ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`} type="number" bind:value={form.duration} min="1" required />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label text-light fw-semibold" for="level">Level</label>
+                  <select id="level" class="form-select bg-dark text-light border-secondary" bind:value={form.level} required>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label text-light fw-semibold" for="categoryInput">Categories</label>
+                <div class="input-group">
+                  <input id="categoryInput" type="text" class="form-control bg-dark text-light border-secondary" bind:value={categoryInput} placeholder="e.g., Strength, Cardio" on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())} />
+                  <button type="button" class="btn btn-outline-warning" on:click={addCategory}>Add</button>
+                </div>
+                {#if submitted && form.categories.length === 0}<div class="text-danger small mt-2">At least one category is required.</div>{/if}
+                {#if form.categories.length > 0}
+                  <div class="d-flex flex-wrap gap-2 mt-3">
+                    {#each form.categories as cat}
+                      <span class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2">
+                        {cat}
+                        <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove category" on:click={() => removeCategory(cat)}></button>
+                      </span>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <label class="form-label text-light fw-semibold mb-0">Select Exercises</label>
+                  <span class="text-secondary small">{form.exerciseIds.length} selected</span>
+                </div>
+
+                {#if allExercises.length === 0}
+                  <div class="alert alert-warning rounded-3 mb-0">
+                    No exercises available. <a href="/exercises/new" class="alert-link">Create one</a>.
+                  </div>
+                {:else}
+                  <div class={`list-group list-group-flush rounded-3 border border-secondary overflow-hidden ${submitted && form.exerciseIds.length === 0 ? 'border-danger' : ''}`}>
+                    {#each allExercises as exercise (exercise._id)}
+                      <label class="list-group-item bg-dark text-light border-secondary d-flex gap-3 align-items-start py-3">
+                        <input class="form-check-input mt-1" type="checkbox" checked={selectedExercises.has(exercise._id)} on:change={() => toggleExercise(exercise._id)} />
+                        <span class="flex-grow-1">
+                          <strong class="d-block mb-1">{exercise.name}</strong>
+                          <span class="d-flex flex-wrap gap-2 align-items-center small text-secondary">
+                            {#each exercise.categories as cat}
+                              <span class="badge rounded-pill bg-secondary text-light">{cat}</span>
+                            {/each}
+                            <span>Level: {exercise.level}</span>
+                          </span>
+                        </span>
+                      </label>
+                    {/each}
+                  </div>
+                {/if}
+                {#if submitted && form.exerciseIds.length === 0}<div class="text-danger small mt-2">At least one exercise must be selected.</div>{/if}
+              </div>
+
+              <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-2">
+                <a href="/workouts" class="btn btn-outline-light">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-orange" disabled={submitting}>
+                  {#if submitting}
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    Updating...
+                  {:else}
+                    Update Workout
+                  {/if}
+                </button>
+              </div>
+            </form>
+          {/if}
         </div>
       </div>
-
-      <div class="actions">
-        <a href="/workouts" class="btn-cancel">Cancel</a>
-        <button type="submit" class="btn-submit" disabled={submitting}>
-          {#if submitting}Updating...{:else}Update Workout{/if}
-        </button>
-      </div>
-    </form>
-  {/if}
+    </div>
+  </div>
 </section>
 
 <style>
-  .page {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 1.25rem;
-  }
-
-  .header {
-    margin-bottom: 1.5rem;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 2rem;
-    color: #b0b0b0;
-  }
-
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .error-box {
-    background: rgba(255, 100, 100, 0.1);
-    border: 1px solid rgba(255, 100, 100, 0.3);
-    border-radius: 8px;
-    padding: 1rem;
-    color: #ff9999;
-  }
-
-  .error-box strong {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .error-box ul {
-    margin: 0;
-    padding-left: 1.5rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  label {
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  input[type='text'],
-  input[type='number'],
-  select {
-    background: #2a2a2a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 0.6rem;
-    color: #f5f5f5;
-    font-family: inherit;
-    transition: border-color 160ms ease;
-  }
-
-  input[type='text']:focus,
-  input[type='number']:focus,
-  select:focus {
-    outline: none;
+  .btn-orange {
+    background: #FF8C00;
     border-color: #FF8C00;
+    color: #111111;
   }
 
-  .category-input {
-    display: flex;
-    gap: 0.5rem;
+  .btn-orange:hover,
+  .btn-orange:focus {
+    background: #ff9d1f;
+    border-color: #ff9d1f;
+    color: #111111;
   }
-
-  .category-input input {
-    flex: 1;
-  }
-
-  .btn-add {
-    background: rgba(255, 140, 0, 0.2);
-    border: 1px solid rgba(255, 140, 0, 0.4);
-    color: #ffd9b8;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 120ms ease;
-  }
-
-  .btn-add:hover {
-    background: rgba(255, 140, 0, 0.3);
-    border-color: #FF8C00;
-  }
-
-  .category-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-  }
-
-  .tag {
-    background: rgba(255, 140, 0, 0.15);
-    color: #ffd9b8;
-    padding: 0.4rem 0.7rem;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .remove {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0;
-    transition: opacity 120ms ease;
-  }
-
-  .remove:hover {
-    opacity: 0.7;
-  }
-
-  .exercises-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .exercise-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: rgba(255, 140, 0, 0.02);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 120ms ease;
-  }
-
-  .exercise-item:hover {
-    background: rgba(255, 140, 0, 0.08);
-  }
-
-  .exercise-item input[type='checkbox'] {
-    margin-top: 0.25rem;
-    cursor: pointer;
-  }
-
-  .exercise-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    flex: 1;
-  }
-
-  .exercise-info strong {
-    color: #f5f5f5;
-  }
-
-  .exercise-meta {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .badge,
-  .level-badge {
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffd9b8;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-  }
-
-  .actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1rem;
-  }
+</style>
 
   .btn-cancel,
   .btn-submit {
