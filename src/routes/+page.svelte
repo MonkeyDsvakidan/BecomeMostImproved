@@ -1,40 +1,13 @@
 <script>
-  import { onMount } from 'svelte'
+  export let data
 
-  let workouts = []
-  let exercises = []
-  let loading = true
-  let error = ''
-
-  async function fetchData() {
-    loading = true
-    error = ''
-    try {
-      const [workoutsRes, exercisesRes] = await Promise.all([
-        fetch('/api/workouts'),
-        fetch('/api/exercises')
-      ])
-
-      if (!workoutsRes.ok || !exercisesRes.ok) {
-        throw new Error('Failed to load data')
-      }
-
-      workouts = await workoutsRes.json()
-      exercises = await exercisesRes.json()
-    } catch (e) {
-      error = e.message || 'Failed to load dashboard data'
-    } finally {
-      loading = false
-    }
-  }
-
-  onMount(() => {
-    fetchData()
-  })
-
-  $: featuredWorkouts = workouts.slice(0, 3)
-  $: totalWorkouts = workouts.length
-  $: totalExercises = exercises.length
+  $: workouts = data?.workouts ?? []
+  $: exercises = data?.exercises ?? []
+  $: featuredWorkouts = data?.featuredWorkouts ?? []
+  $: recentActivity = data?.recentActivity ?? []
+  $: stats = data?.stats ?? {}
+  $: totalWorkouts = stats.totalWorkouts ?? workouts.length
+  $: totalExercises = stats.totalExercises ?? exercises.length
 </script>
 
 <svelte:head>
@@ -50,84 +23,147 @@
     </div>
   </header>
 
-  {#if loading}
-    <div class="loading">Loading dashboard…</div>
-  {:else if error}
-    <div class="error">{error}</div>
-  {:else}
-    <section class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">🏋️</div>
-          <div class="stat-info">
-            <span class="stat-label">Total Workouts</span>
-            <span class="stat-number">{totalWorkouts}</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">💪</div>
-          <div class="stat-info">
-            <span class="stat-label">Total Exercises</span>
-            <span class="stat-number">{totalExercises}</span>
-          </div>
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-info">
+          <span class="stat-label">Total Workouts</span>
+          <span class="stat-number">{totalWorkouts}</span>
         </div>
       </div>
-    </section>
-
-    {#if featuredWorkouts.length > 0}
-      <section class="featured-section">
-        <h2 class="section-title">Featured Workouts</h2>
-        <div class="workouts-grid">
-          {#each featuredWorkouts as workout (workout._id)}
-            <article class="workout-card">
-              <div class="card-header">
-                <h3 class="workout-name">{workout.name}</h3>
-                <span class="exercise-badge">{workout.exercises?.length ?? 0}</span>
-              </div>
-
-              <div class="card-meta">
-                <span class="duration">⏱ {workout.duration} min</span>
-                <span class="level">{workout.level}</span>
-              </div>
-
-              {#if workout.categories && workout.categories.length > 0}
-                <div class="categories">
-                  {#each workout.categories as cat}
-                    <span class="category-pill">{cat}</span>
-                  {/each}
-                </div>
-              {/if}
-
-              <a href="/workouts/{workout._id}/session" class="btn-start">
-                Start Workout
-              </a>
-            </article>
-          {/each}
+      <div class="stat-card">
+        <div class="stat-icon">💪</div>
+        <div class="stat-info">
+          <span class="stat-label">Total Exercises</span>
+          <span class="stat-number">{totalExercises}</span>
         </div>
-      </section>
-    {/if}
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <span class="stat-label">Completed This Week</span>
+          <span class="stat-number">{stats.workoutsCompletedThisWeek ?? 0}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏱</div>
+        <div class="stat-info">
+          <span class="stat-label">Training Minutes</span>
+          <span class="stat-number">{stats.totalTrainingMinutes ?? 0}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section class="cta-section">
-      <div class="cta-grid">
-        {#if totalWorkouts > 3}
-          <a href="/workouts" class="cta-card">
-            <span class="cta-icon">🎯</span>
-            <span class="cta-text">View All Workouts</span>
-          </a>
-        {/if}
-        {#if totalExercises > 0}
-          <a href="/exercises" class="cta-card">
-            <span class="cta-icon">📋</span>
-            <span class="cta-text">Browse Exercises</span>
-          </a>
-        {/if}
-        <a href="/workouts/new" class="cta-card cta-create">
-          <span class="cta-icon">➕</span>
-          <span class="cta-text">Create Workout</span>
-        </a>
+  <section class="insights-section">
+    <div class="insights-grid">
+      <article class="insight-card">
+        <h2 class="section-title">Workout Mix</h2>
+        <div class="insight-list">
+          {#each Object.entries(stats.levelDistribution ?? {}) as [level, count]}
+            <div class="insight-row">
+              <span>{level}</span>
+              <strong>{count}</strong>
+            </div>
+          {/each}
+          {#if Object.keys(stats.levelDistribution ?? {}).length === 0}
+            <p class="muted-text">No workout levels yet.</p>
+          {/if}
+        </div>
+      </article>
+
+      <article class="insight-card">
+        <h2 class="section-title">Top Categories</h2>
+        <div class="insight-list">
+          {#each stats.topCategories ?? [] as item}
+            <div class="insight-row">
+              <span>{item.name}</span>
+              <strong>{item.count}</strong>
+            </div>
+          {/each}
+          {#if (stats.topCategories ?? []).length === 0}
+            <p class="muted-text">No workout categories yet.</p>
+          {/if}
+        </div>
+      </article>
+    </div>
+  </section>
+
+  {#if featuredWorkouts.length > 0}
+    <section class="featured-section">
+      <h2 class="section-title">Featured Workouts</h2>
+      <div class="workouts-grid">
+        {#each featuredWorkouts as workout (workout._id)}
+          <article class="workout-card">
+            <div class="card-header">
+              <h3 class="workout-name">{workout.name}</h3>
+              <span class="exercise-badge">{workout.exercises?.length ?? 0}</span>
+            </div>
+
+            <div class="card-meta">
+              <span class="duration">⏱ {workout.duration} min</span>
+              <span class="level">{workout.level}</span>
+            </div>
+
+            {#if workout.categories && workout.categories.length > 0}
+              <div class="categories">
+                {#each workout.categories as cat}
+                  <span class="category-pill">{cat}</span>
+                {/each}
+              </div>
+            {/if}
+
+            <a href="/workouts/{workout._id}/session" class="btn-start">
+              Start Workout
+            </a>
+          </article>
+        {/each}
       </div>
     </section>
   {/if}
+
+  {#if recentActivity.length > 0}
+    <section class="recent-section">
+      <h2 class="section-title">Recent Activity</h2>
+      <div class="recent-list">
+        {#each recentActivity as session (session._id)}
+          <article class="recent-card">
+            <div class="recent-main">
+              <strong>{session.workoutName}</strong>
+              <span>{new Date(session.completedAt).toLocaleString()}</span>
+            </div>
+            <div class="recent-meta">
+              <span>{session.exerciseCount} exercises</span>
+              <span>{session.actualDurationSeconds > 0 ? `${Math.round(session.actualDurationSeconds / 60)} min` : `${session.plannedDuration} min`}</span>
+              <span>{session.level}</span>
+            </div>
+          </article>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  <section class="cta-section">
+    <div class="cta-grid">
+      {#if totalWorkouts > 3}
+        <a href="/workouts" class="cta-card">
+          <span class="cta-icon">🎯</span>
+          <span class="cta-text">View All Workouts</span>
+        </a>
+      {/if}
+      {#if totalExercises > 0}
+        <a href="/exercises" class="cta-card">
+          <span class="cta-icon">📋</span>
+          <span class="cta-text">Browse Exercises</span>
+        </a>
+      {/if}
+      <a href="/workouts/new" class="cta-card cta-create">
+        <span class="cta-icon">➕</span>
+        <span class="cta-text">Create Workout</span>
+      </a>
+    </div>
+  </section>
 </section>
 
 <style>
@@ -179,6 +215,62 @@
     max-width: 1100px;
     margin: 0 auto;
     padding: 2.5rem 1.25rem;
+  }
+
+  .insights-section,
+  .recent-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.25rem 2.5rem;
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .insight-card,
+  .recent-card {
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 140, 0, 0.15);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .insight-list,
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .insight-row,
+  .recent-main,
+  .recent-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .recent-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .recent-main span,
+  .muted-text {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+  }
+
+  .recent-meta {
+    flex-wrap: wrap;
+    color: #ffd9b8;
+    font-size: 0.9rem;
   }
 
   .stats-grid {

@@ -14,6 +14,7 @@
   let isTimeUp = false
   let showBreakScreen = false
   let breakTimeRemaining = 10
+  let sessionStartedAt = 0
 
   $: currentExercise = workout?.exercises?.[currentIndex]
   $: totalExercises = workout?.exercises?.length ?? 0
@@ -30,6 +31,7 @@
         throw new Error(body.error || res.statusText)
       }
       workout = await res.json()
+      sessionStartedAt = Date.now()
       if (workout?.exercises?.length > 0) {
         initializeTimer()
       }
@@ -144,8 +146,29 @@
     }, 1000)
   }
 
-  function finishWorkout() {
+  async function finishWorkout() {
     stopTimer()
+    if (workout?._id) {
+      const actualDurationSeconds = sessionStartedAt > 0 ? Math.max(0, Math.round((Date.now() - sessionStartedAt) / 1000)) : 0
+      fetch('/api/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          workoutId: workout._id,
+          workoutName: workout.name,
+          completedAt: new Date().toISOString(),
+          exerciseCount: totalExercises,
+          plannedDuration: workout.duration ?? 0,
+          actualDurationSeconds,
+          level: workout.level ?? 'N/A',
+          categories: workout.categories ?? []
+        })
+      }).catch((error) => {
+        console.error('Failed to save session', error)
+      })
+    }
     isFinished = true
   }
 
