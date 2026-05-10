@@ -40,3 +40,15 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Deploying To Netlify
+
+This project uses the Netlify adapter. Before deploying, set the following environment variable in Netlify:
+
+- `MONGODB_URI` - MongoDB connection string for your production database
+
+Netlify can build the project with the default command:
+
+```sh
+npm run build
+```
