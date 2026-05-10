@@ -10,6 +10,7 @@ function startOfWeek(date) {
 }
 
 function formatRecentSession(session) {
+  const actualDurationSeconds = session.actualDurationSeconds ?? 0
   return {
     _id: session._id.toString(),
     workoutId: session.workoutId?.toString?.() ?? session.workoutId,
@@ -17,10 +18,18 @@ function formatRecentSession(session) {
     completedAt: session.completedAt,
     exerciseCount: session.exerciseCount ?? 0,
     plannedDuration: session.plannedDuration ?? 0,
-    actualDurationSeconds: session.actualDurationSeconds ?? 0,
+    actualDurationSeconds,
+    actualDurationLabel: formatDuration(actualDurationSeconds),
     level: session.level ?? 'N/A',
     categories: session.categories ?? []
   }
+}
+
+function formatDuration(seconds) {
+  const totalSeconds = Math.max(0, Math.round(seconds ?? 0))
+  const minutes = Math.floor(totalSeconds / 60)
+  const remainingSeconds = totalSeconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
 }
 
 function emptyStats() {
@@ -63,15 +72,15 @@ export async function load() {
       db.collection('sessions').find({}).sort({ completedAt: -1 }).limit(10).toArray()
     ])
 
+    const workoutById = new Map(workouts.map((workout) => [workout._id.toString(), workout]))
+
     const weekStart = startOfWeek(new Date())
     const workoutsCompletedThisWeek = sessions.filter((session) => {
       const completedAt = session.completedAt ? new Date(session.completedAt) : null
       return completedAt && completedAt >= weekStart
     }).length
 
-    const totalTrainingSeconds = sessions.reduce((sum, session) => {
-      return sum + (session.actualDurationSeconds ?? ((session.plannedDuration ?? 0) * 60))
-    }, 0)
+    const totalTrainingSeconds = sessions.reduce((sum, session) => sum + (session.actualDurationSeconds ?? 0), 0)
 
     const workoutCounts = new Map()
     for (const session of sessions) {
@@ -85,7 +94,7 @@ export async function load() {
       const key = session.workoutId?.toString?.() ?? session.workoutName ?? 'unknown'
       const count = workoutCounts.get(key) ?? 0
       if (count > mostUsedWorkoutCount) {
-        mostUsedWorkout = session.workoutName
+        mostUsedWorkout = workoutById.get(session.workoutId?.toString?.() ?? '')?.name ?? session.workoutName
         mostUsedWorkoutCount = count
       }
     }
@@ -107,7 +116,22 @@ export async function load() {
 
     const plainWorkouts = workouts.map(toPlainDocument)
     const plainExercises = exercises.map(toPlainDocument)
-    const plainSessions = sessions.map(toPlainDocument)
+    const plainSessions = sessions.map((session) => {
+      const plainSession = toPlainDocument(session)
+      const currentWorkout = workoutById.get(session.workoutId?.toString?.() ?? '')
+      const workoutName = currentWorkout?.name ?? session.workoutName
+      const plannedDuration = currentWorkout?.duration ?? session.plannedDuration ?? 0
+      const level = currentWorkout?.level ?? session.level ?? 'N/A'
+      const categories = currentWorkout?.categories ?? session.categories ?? []
+
+      return {
+        ...plainSession,
+        workoutName,
+        plannedDuration,
+        level,
+        categories
+      }
+    })
 
     return {
       workouts: plainWorkouts,

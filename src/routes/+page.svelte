@@ -155,12 +155,12 @@
             <div class="card bg-dark border-secondary shadow-sm rounded-3">
               <div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3">
                 <div>
-                  <h3 class="h6 fw-bold mb-1">{session.workoutName}</h3>
+                  <h3 class="h6 fw-bold mb-1 text-light">{session.workoutName}</h3>
                   <div class="text-secondary small">{new Date(session.completedAt).toLocaleString()}</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                   <span class="badge bg-secondary text-light rounded-pill">{session.exerciseCount} exercises</span>
-                  <span class="badge bg-secondary text-light rounded-pill">{session.actualDurationSeconds > 0 ? `${Math.round(session.actualDurationSeconds / 60)} min` : `${session.plannedDuration} min`}</span>
+                  <span class="badge bg-secondary text-light rounded-pill">{session.actualDurationLabel ?? '00:00'}</span>
                   <span class="badge bg-primary text-dark rounded-pill">{session.level}</span>
                 </div>
               </div>

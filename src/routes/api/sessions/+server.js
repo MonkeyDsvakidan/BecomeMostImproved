@@ -20,10 +20,11 @@ function validateSession(body) {
     return errors
   }
 
-  const { workoutId, workoutName, completedAt, exerciseCount, plannedDuration, actualDurationSeconds, level, categories } = body
+  const { workoutId, workoutName, startedAt, completedAt, exerciseCount, plannedDuration, actualDurationSeconds, level, categories } = body
 
   if (!isValidObjectId(workoutId)) errors.push('`workoutId` is required and must be a valid ObjectId string')
   if (!workoutName || typeof workoutName !== 'string') errors.push('`workoutName` is required and must be a string')
+  if (!startedAt || Number.isNaN(Date.parse(startedAt))) errors.push('`startedAt` is required and must be a valid ISO date string')
   if (!completedAt || Number.isNaN(Date.parse(completedAt))) errors.push('`completedAt` is required and must be a valid ISO date string')
   if (exerciseCount !== undefined && (!Number.isFinite(exerciseCount) || exerciseCount < 0)) errors.push('`exerciseCount` must be a non-negative number')
   if (plannedDuration !== undefined && (!Number.isFinite(plannedDuration) || plannedDuration < 0)) errors.push('`plannedDuration` must be a non-negative number')
@@ -55,13 +56,20 @@ export async function POST({ request }) {
 
     const db = await connectToDatabase()
     const now = new Date()
+    const startedAt = new Date(body.startedAt)
+    const completedAt = new Date(body.completedAt)
+    const actualDurationSeconds = Number.isFinite(Date.parse(body.startedAt))
+      ? Math.max(0, Math.round((completedAt.getTime() - startedAt.getTime()) / 1000))
+      : (body.actualDurationSeconds ?? 0)
+
     const doc = {
       workoutId: new ObjectId(body.workoutId),
       workoutName: body.workoutName,
-      completedAt: new Date(body.completedAt),
+      startedAt,
+      completedAt,
       exerciseCount: body.exerciseCount ?? 0,
       plannedDuration: body.plannedDuration ?? 0,
-      actualDurationSeconds: body.actualDurationSeconds ?? 0,
+      actualDurationSeconds,
       level: body.level ?? 'N/A',
       categories: body.categories ?? [],
       createdAt: now,

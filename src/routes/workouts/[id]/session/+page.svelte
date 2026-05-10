@@ -140,6 +140,7 @@
         body: JSON.stringify({
           workoutId: workout._id,
           workoutName: workout.name,
+          startedAt: new Date(sessionStartedAt).toISOString(),
           completedAt: new Date().toISOString(),
           exerciseCount: totalExercises,
           plannedDuration: workout.duration ?? 0,
