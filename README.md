@@ -399,14 +399,246 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 - **API vs. Form Actions**: Beide Ansätze parallel erhöhen Komplexität leicht, bieten aber mehr Flexibilität
 
 ### 3.5 Validate
-- **URL der getesteten Version** (separat deployt)
-- **Ziele der Prüfung:** _[welche Fragen sollen beantwortet werden?]_  
-- **Vorgehen:** _[moderiert/unmoderiert; remote/on-site]_  
-- **Stichprobe:** _[Mit wem wurde getestet? Profil; Anzahl]_  
-- **Aufgaben/Szenarien:** _[Ausformulierte Testaufgaben]_  
-- **Kennzahlen & Beobachtungen:** _[z. B. Erfolgsquote, Zeitbedarf, qualitative Findings]_  
-- **Zusammenfassung der Resultate:** _[Wichtigste Erkenntnisse; 2-4 Sätze]_  
-- **Abgeleitete Verbesserungen:** _[Anforderungen, die als nächstes umgesetzt werden sollten, priorisiert, kurz begründet; falls Verbesserungen im Prototyp konkret umgesetzt wurden: In Kap. 4 dokumentieren]_  
+
+**URL der getesteten Version:**
+
+Die getestete Version wurde nicht separat deployt. Als Ersatzmassnahme (wie in der Kleinklasse erklärt) wurden Screenshots von allen Funktionen der getesteten Version in diesen Teil eingefügt.
+
+**Ziele der Prüfung:**
+
+1. Können Testpersonen eigenständig ein neues Exercise erstellen?
+2. Verstehen sie, wie man ein Workout aus Exercises zusammenstellt?
+3. Ist der Start einer Session klar und intuitiv?
+4. Wo treten Verwirrungen oder Verzögerungen auf?
+5. Ist die Terminologie verständlich? (Exercise vs. Workout vs. Session)
+
+**Vorgehen:**
+
+- Moderiert, on-site
+- Thinking Aloud Methode
+- 4 definierte Testaufgaben pro Person
+- Durchgeführt am 21. Mai 2026
+
+**Stichprobe:**
+
+- 2 Testpersonen (Mitstudierende ZHAW)
+- **TP1 (Kanita)**: Hobbysportlerin ohne Basketballerfahrung, mittlere Tech-Affinität
+- **TP2 (Sandro)**: keine Basketballerfahrung, hohe Tech-Affinität
+
+**Aufgaben/Szenarien:**
+
+1. **Neues Exercise erstellen** ("Free Throw Practice", Kategorie "Shooting", Level "Beginner", 3 Sets, 10 Reps, 10 Min)
+2. **Workout zusammenstellen** (mind. 3 Exercises zu einem Workout kombinieren)
+3. **Workout-Session starten und durchführen** (Pause-Funktion testen)
+4. **Exercise bearbeiten oder löschen**
+
+**Kennzahlen & Beobachtungen:**
+
+Beide Testpersonen konnten alle vier Aufgaben grundsätzlich erfolgreich abschließen. Detaillierte Beobachtungen:
+
+**Aufgabe 1 - Exercise erstellen:**
+
+![Tested - Dashboard](README-Images/tested-dashboard.png)
+
+![Tested - Mobile Dashboard 1](README-Images/tested-mobile-dashboard1.png)
+
+![Tested - Mobile Dashboard 2](README-Images/tested-mobile-dashboard2.png)
+
+![Tested - Mobile Navigation](README-Images/tested-mobile-navigation.png)
+
+![Tested - Exercise Create Form](README-Images/tested-exercise-new.png)
+
+![Tested - Exercise Filled Create Form](README-Images/tested-exercise-new-filled.png)
+
+![Tested - Mobile Exercise Create Form](README-Images/tested-mobile-exercise-new.png)
+
+- ✅ Formular wurde schnell gefunden
+- ⚠️ "Add"-Button bei Kategorie-Hinzufügung unklar
+- ⚠️ Nicht klar ersichtlich, welche Felder optional sind (Description)
+- ⚠️ Description-Feld nicht klar betitelt
+- ⚠️ Keine Anzeige welche Felder zwingend ausgefüllt werden müssen
+
+**Aufgabe 2 - Workout erstellen:**
+
+![Tested - Workouts Page](README-Images/tested-workouts-page.png)
+
+![Tested - Mobile Workouts Page](README-Images/tested-mobile-workouts-page.png)
+
+![Tested - Workout Create Form](README-Images/tested-workout-new.png)
+
+- ✅ Grundkonzept Exercise → Workout verstanden
+- ⚠️ Exercise-Liste zu lang bei Workout-Erstellung, unübersichtlich
+- ⚠️ Fehlermeldung erscheint oben, nicht sichtbar wenn man unten im Formular ist
+
+**Aufgabe 3 - Session starten:**
+
+![Tested - Session Start](README-Images/tested-session-start.png)
+
+![Tested - Session Progress](README-Images/tested-session-progress.png)
+
+![Tested - Session Pause](README-Images/tested-session-pause.png)
+
+![Tested - Session Finish](README-Images/tested-session-finish.png)
+
+![Tested - Mobile Session 1](README-Images/tested-mobile-session1.png)
+
+![Tested - Mobile Session 2](README-Images/tested-mobile-session2.png)
+
+- ✅ Start-Button auf Workout-Card klar erkennbar
+- ✅ Fortschrittsbalken hilft bei Orientierung
+- ⚠️ Session-Screen könnte kompakter gestaltet werden
+- ⚠️ Home (Dashboard) könnte kompakter gestaltet werden
+
+**Aufgabe 4 - Bearbeiten/Löschen:**
+
+![Tested - Workout Edit](README-Images/tested-workout-edit.png)
+
+![Tested - Exercise Edit](README-Images/tested-exercise-edit.png)
+
+![Tested - Mobile Exercise Edit](README-Images/tested-mobile-exercise-edit.png)
+
+![Tested - Exercise Delete Modal](README-Images/tested-exercise-delete-modal.png)
+
+![Tested - Exercise Edit Error](README-Images/tested-exercise-edit-error.png)
+
+- ✅ Löschen funktioniert gut mit Bestätigungs-Modal
+- ❌ "Exercise not found" Fehler beim Bearbeiten aufgetreten (kritischer Bug)
+- ⚠️ Buttons Edit und Delete nicht oben, Navigation könnte klarer sein
+
+**Evaluation Grid:**
+
+![Evaluation Grid - Feedback von Kanita und Sandro](README-Images/evaluation-grid.png)
+
+Das Evaluation Grid zeigt die vollständige Sammlung von positivem Feedback, Verbesserungsvorschlägen und neuen Ideen beider Testpersonen.
+
+**Qualitative Findings:**
+
+**Positive Rückmeldungen:**
+
+- Bestätigung "created" nach Erstellung vorhanden
+- Löschfunktion funktioniert gut mit Modal-Bestätigung
+- Interaktivität und Buttons werden positiv bewertet ("coole Buttons")
+- Design ansprechend (Dark Mode, Orange als Akzentfarbe)
+- Verständlichkeit grundsätzlich gut
+- Statistiken vorhanden und hilfreich
+- Übersichtliches Layout mit Cards ("coole Übersicht")
+- Idee und Design gefällt beiden Testpersonen
+- Für alle Erfahrungsstufen benutzbar
+- Workout und Exercises gut strukturiert aufgebaut
+
+**Schwierigkeiten/Probleme:**
+
+- "Add"-Button bei Kategorien nicht selbsterklärend
+- Fehlermeldungen erscheinen oben und sind bei Scroll nicht sichtbar
+- Description-Feld unklare Benennung
+- Description als optionales Attribut nicht klar gekennzeichnet
+- Keine klare Kennzeichnung von Pflichtfeldern vs. optionalen Feldern
+- "Exercise not found" Fehler beim Bearbeiten (kritischer Bug)
+- Pop-ups nach Erstellung/Bearbeitung fehlen oder sind nicht interaktiv genug
+- Meldung "created" als Pop-Up ohne OK-Button
+- Grauer Text bei ausgefüllten Feldern schwer lesbar
+- Edit/Delete Buttons nicht optimal platziert (nicht oben)
+- "Create Exercise" Button könnte auch auf Home angezeigt werden
+
+**Verbesserungsvorschläge der Testpersonen:**
+
+**Usability:**
+- Exercises die neu erstellt wurden nach oben in der Liste anzeigen
+- Eingegebene Categories automatisch als Filter für angezeigte Exercises verwenden
+
+**Features/Nice-to-have:**
+- Warm-Up Spiel vor den Übungen integrieren
+- Kalenderansicht für Statistik
+- Edit und Delete als Icons darstellen (platzsparender)
+- Duration bei Workout-Erstellung automatisch basierend auf gewählten Exercises berechnen und anpassen
+
+**Zusammenfassung der Resultate:**
+
+Die Evaluation zeigt, dass die Kernfunktionalität der App funktioniert und von beiden Testpersonen grundsätzlich verstanden wird. Design, Übersichtlichkeit und Card-basierte Struktur wurden positiv bewertet. Die Terminologie Exercise/Workout/Session wurde verstanden. Hauptprobleme liegen in fehlenden oder schlecht positionierten Feedback-Mechanismen (Pop-ups, Fehlermeldungs-Positionierung), unklaren Beschriftungen (Description, "Add"-Button), fehlender Kennzeichnung von Pflichtfeldern und einem kritischen Bug beim Bearbeiten von Exercises. Beide Testpersonen empfanden die App als vielversprechend und würden sie nutzen.
+
+**Abgeleitete Verbesserungen:**
+
+Priorisiert nach Dringlichkeit (Kritisch → Hoch → Mittel → Niedrig):
+
+**KRITISCH (vor Abgabe beheben):**
+
+1. **"Exercise not found" Bug beim Bearbeiten beheben**
+   - Was: Fehler beim Öffnen der Edit-Seite für Exercises
+   - Begründung: Verhindert Kernfunktion (CRUD), von TP2 reproduziert
+   - Aufwand: Mittel
+   - Technisch: Exercise-Edit-Route und ID-Handling prüfen
+
+**HOCH (vor Abgabe empfohlen):**
+
+2. **"Add"-Button für Kategorien klarer beschriften**
+   - Was: Button-Text ändern zu "Add Category" oder Tooltip hinzufügen
+   - Begründung: Beide TPs fanden Button unklar
+   - Aufwand: Gering
+   - Kategorie: UX - Klarheit
+
+3. **Description-Feld klarer benennen und als optional kennzeichnen**
+   - Was: Label ändern zu "Description (optional)"
+   - Begründung: Unklare Benennung und nicht ersichtlich, dass Feld optional ist
+   - Aufwand: Gering
+   - Kategorie: UX - Beschriftung
+
+4. **Fehlermeldungen sichtbar positionieren**
+   - Was: Fehler direkt beim betroffenen Feld anzeigen oder automatisch zu Fehler scrollen
+   - Begründung: User sehen Fehler nicht bei langem Formular (scrollen nötig)
+   - Aufwand: Gering
+   - Kategorie: UI - Feedback-Position
+
+5. **Pop-ups nach CRUD-Operationen hinzufügen/verbessern**
+   - Was: Interaktive Toast-Notifications mit "OK"-Button: "Exercise created!", "Workout updated!", etc.
+   - Begründung: Feedback fehlt oder ist nicht interaktiv, User unsicher ob Aktion erfolgreich
+   - Aufwand: Gering
+   - Kategorie: UX - Feedback
+
+6. **Bearbeitungs-Fehler identifizieren und beheben**
+   - Was: Genaue Fehlerquelle mit TP2 klären und beheben
+   - Begründung: Unklarer Fehler verhindert Workflow
+   - Aufwand: Variiert
+   - Kategorie: Bug
+
+**MITTEL (Nice-to-have vor Abgabe):**
+
+7. **Pflichtfelder kennzeichnen**
+   - Was: Rotes Sternchen * bei Required-Feldern oder "required"-Label
+   - Begründung: Nicht klar welche Felder ausgefüllt werden müssen
+   - Aufwand: Gering
+   - Kategorie: UX - Validierung
+
+8. **Exercise-Liste bei Workout-Erstellung übersichtlicher gestalten**
+   - Was: Scroll-Container mit fixer Höhe, Pagination oder verbesserte Filter
+   - Begründung: Liste zu lang und unübersichtlich
+   - Aufwand: Mittel
+   - Kategorie: UX - Übersichtlichkeit
+
+9. **Kontrast bei ausgefüllten Feldern erhöhen**
+   - Was: Dunklerer Grauton für Formular-Text (bessere Lesbarkeit)
+   - Begründung: Grauer Text in ausgefüllten Feldern schwer lesbar
+   - Aufwand: Gering
+   - Kategorie: UI - Lesbarkeit
+
+10. **Edit/Delete Buttons besser positionieren**
+    - Was: Buttons konsistenter platzieren (z.B. immer oben rechts auf Cards) oder als Icons
+    - Begründung: Navigation nicht optimal, TPs mussten suchen
+    - Aufwand: Gering
+    - Kategorie: UI - Navigation
+
+**NIEDRIG (falls möglich vor Abgabe / sonst Anpassung nach Abgabe für persönlichen Gebrauch):**
+
+11. Session-Screen kompakter gestalten (UI - Layout, Aufwand: Mittel)
+12. Home/Dashboard kompakter gestalten (UI - Layout, Aufwand: Mittel)
+13. "Create Exercise" Button auch auf Home anzeigen (UX - Workflow, Aufwand: Gering)
+14. Neu erstellte Exercises oben in Liste anzeigen (UX, Aufwand: Gering)
+15. Eingegebene Categories als direkte Filter verwenden (UX, Aufwand: Mittel)
+16. Warm-Up Spiel vor Übungen integrieren (Feature, Aufwand: Hoch)
+17. Kalenderansicht für Statistik (Feature, Aufwand: Hoch)
+18. Edit/Delete als Icons statt Text-Buttons (UI, Aufwand: Gering)
+19. Duration bei Workout-Erstellung automatisch berechnen (Feature, Aufwand: Mittel)
+
+_Hinweis: Aufgrund der Nähe zur Abgabefrist können eventuell nicht alle identifizierten Verbesserungen umgesetzt werden. Priorisiert wurden kritische Bugs und Issues mit hoher Priorität und geringem Aufwand. Die tatsächliche Umsetzung ist in Kapitel 4 ersichtlich._
 
 ## 4. Erweiterungen [Optional]
 Dokumentiert Erweiterungen über den Mindestumfang hinaus.
