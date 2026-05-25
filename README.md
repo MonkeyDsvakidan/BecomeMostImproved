@@ -404,6 +404,8 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 
 Die getestete Version wurde nicht separat deployt. Als Ersatzmassnahme (wie in der Kleinklasse erklärt) wurden Screenshots von allen Funktionen der getesteten Version in diesen Teil eingefügt.
 
+> **Hinweis:** Die Evaluation wurde ausschließlich mit der Desktop-Version durchgeführt. Die mobile Version wurde zum Testzeitpunkt nicht evaluiert. Screenshots der mobile Version sind in diesem Kapitel dokumentiert, um den Stand zum Zeitpunkt der Evaluation festzuhalten.
+
 **Ziele der Prüfung:**
 
 1. Können Testpersonen eigenständig ein neues Exercise erstellen?
