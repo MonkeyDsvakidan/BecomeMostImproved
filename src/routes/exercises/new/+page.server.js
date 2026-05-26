@@ -28,7 +28,6 @@ export const actions = {
 		if (!name) errors.push('Name is required');
 		if (categories.length === 0) errors.push('At least one category is required');
 		if (!level) errors.push('Level is required');
-		if (!description) errors.push('Description is required');
 		if (setsResult.error) errors.push(setsResult.error);
 		if (repsResult.error) errors.push(repsResult.error);
 		if (durationResult.error) errors.push(durationResult.error);

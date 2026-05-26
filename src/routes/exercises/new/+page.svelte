@@ -19,6 +19,28 @@
 	let loading = false;
 	let submitted = false;
 
+	const fieldErrorMatchers = {
+		name: ['name is required'],
+		categories: ['at least one category is required'],
+		level: ['level is required'],
+		sets: ['sets must be a non-negative number'],
+		reps: ['reps must be a non-negative number'],
+		duration: ['duration must be a non-negative number']
+	};
+
+	function getFieldError(field) {
+		const matchers = fieldErrorMatchers[field] ?? [];
+		const found = errors.find((err) => {
+			const lowered = err.toLowerCase();
+			return matchers.some((matcher) => lowered.includes(matcher));
+		});
+		return found ?? '';
+	}
+
+	function isFieldInvalid(field) {
+		return Boolean(getFieldError(field));
+	}
+
 	function addCategory() {
 		const trimmed = categoryInput.trim();
 		if (trimmed && !form.categories.includes(trimmed)) {
@@ -36,7 +58,6 @@
 		if (!form.name.trim()) errors.push('Name is required');
 		if (form.categories.length === 0) errors.push('At least one category is required');
 		if (!form.level) errors.push('Level is required');
-		if (!form.description.trim()) errors.push('Description is required');
 		if (form.sets < 0 || isNaN(form.sets)) errors.push('Sets must be a non-negative number');
 		if (form.reps < 0 || isNaN(form.reps)) errors.push('Reps must be a non-negative number');
 		if (form.duration < 0 || isNaN(form.duration))
@@ -87,48 +108,46 @@
 					</div>
 
 					<form method="POST" use:enhance={enhanceSubmit} class="d-flex flex-column gap-4">
-						{#if errors.length > 0}
-							<div class="alert alert-danger rounded-3 shadow-sm mb-0">
-								<strong class="d-block mb-2">Please fix these errors:</strong>
-								<ul class="mb-0 ps-3">
-									{#each errors as err, index (err + index)}
-										<li>{err}</li>
-									{/each}
-								</ul>
-							</div>
-						{/if}
 
-						<div class="form-floating">
+						<div>
+							<label class="form-label text-light fw-semibold" for="name"
+								>Exercise Name <span style="color: red;">*</span></label
+							>
 							<input
 								id="name"
 								name="name"
-								class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
+								class={`form-control bg-dark text-light border-secondary ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
 								type="text"
 								bind:value={form.name}
+								title="Exercise Name (required)"
 								placeholder="e.g., Push-ups"
 								required
 							/>
-							<label for="name">Exercise Name</label>
+							{#if (submitted && !form.name.trim()) || isFieldInvalid('name')}
+								<div class="invalid-feedback">{getFieldError('name') || 'Name is required'}</div>
+							{/if}
 						</div>
 
 						<div>
-							<label class="form-label text-light fw-semibold" for="categoryInput">Categories</label
+							<label class="form-label text-light fw-semibold" for="categoryInput">Categories <span style="color: red;">*</span></label
 							>
 							<div class="input-group">
 								<input
 									id="categoryInput"
 									type="text"
-									class="form-control bg-dark text-light border-secondary"
+									class={`form-control bg-dark text-light border-secondary ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
 									bind:value={categoryInput}
 									placeholder="e.g., Chest, Cardio"
 									on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
 								/>
 								<button type="button" class="btn btn-outline-warning" on:click={addCategory}
-									>Add</button
+									>Add Category</button
 								>
 							</div>
-							{#if submitted && form.categories.length === 0}
-								<div class="text-danger small mt-2">At least one category is required.</div>
+							{#if (submitted && form.categories.length === 0) || isFieldInvalid('categories')}
+								<div class="invalid-feedback d-block">
+									{getFieldError('categories') || 'At least one category is required'}
+								</div>
 							{/if}
 							{#if form.categories.length > 0}
 								<div class="d-flex flex-wrap gap-2 mt-3">
@@ -152,11 +171,11 @@
 
 						<div class="row g-3">
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="level">Level</label>
+								<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
 								<select
 									id="level"
 									name="level"
-									class="form-select bg-dark text-light border-secondary"
+									class={`form-select bg-dark text-light border-secondary ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
 									bind:value={form.level}
 									required
 								>
@@ -164,60 +183,79 @@
 									<option value="Intermediate">Intermediate</option>
 									<option value="Advanced">Advanced</option>
 								</select>
+								{#if isFieldInvalid('level')}
+									<div class="invalid-feedback">{getFieldError('level')}</div>
+								{/if}
 							</div>
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="sets">Sets</label>
+								<label class="form-label text-light fw-semibold" for="sets">Sets <span style="color: red;">*</span></label>
 								<input
 									id="sets"
 									name="sets"
-									class={`form-control bg-dark text-light border-secondary ${submitted && (form.sets < 0 || isNaN(form.sets)) ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.sets}
 									min="0"
 									required
 								/>
+								{#if (submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets')}
+									<div class="invalid-feedback">
+										{getFieldError('sets') || 'Sets must be a non-negative number'}
+									</div>
+								{/if}
 							</div>
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="reps">Reps</label>
+								<label class="form-label text-light fw-semibold" for="reps">Reps <span style="color: red;">*</span></label>
 								<input
 									id="reps"
 									name="reps"
-									class={`form-control bg-dark text-light border-secondary ${submitted && (form.reps < 0 || isNaN(form.reps)) ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.reps}
 									min="0"
 									required
 								/>
+								{#if (submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps')}
+									<div class="invalid-feedback">
+										{getFieldError('reps') || 'Reps must be a non-negative number'}
+									</div>
+								{/if}
 							</div>
 						</div>
 
-						<div class="form-floating">
+						<div>
+							<label class="form-label text-light fw-semibold" for="description"
+								>Description (optional)</label
+							>
 							<textarea
 								id="description"
 								name="description"
-								class={`form-control bg-dark text-light border-secondary ${submitted && !form.description.trim() ? 'is-invalid' : ''}`}
+								class="form-control bg-dark text-light border-secondary"
 								bind:value={form.description}
 								placeholder="Describe how to perform this exercise..."
 								style="height: 140px"
-								required
 							></textarea>
-							<label for="description">Description</label>
 						</div>
 
 						<div class="row g-3">
 							<div class="col-md-6">
 								<label class="form-label text-light fw-semibold" for="duration"
-									>Duration (minutes)</label
+									>Duration (minutes) <span style="color: red;">*</span></label
 								>
 								<input
 									id="duration"
 									name="duration"
-									class={`form-control bg-dark text-light border-secondary ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.duration}
 									min="0"
 									required
 								/>
+								{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
+									<div class="invalid-feedback">
+										{getFieldError('duration') || 'Duration must be a non-negative number'}
+									</div>
+								{/if}
 							</div>
 						</div>
 

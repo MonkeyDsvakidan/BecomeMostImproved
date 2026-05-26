@@ -120,23 +120,26 @@
 								</div>
 							{/if}
 
-							<div class="form-floating">
+							<div>
+								<label class="form-label text-light fw-semibold" for="name"
+									>Workout Name <span style="color: red;">*</span></label
+								>
 								<input
 									id="name"
 									name="name"
 									class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
 									type="text"
 									bind:value={form.name}
+									title="Workout Name (required)"
 									placeholder="e.g., Full Body Strength"
 									required
 								/>
-								<label for="name">Workout Name</label>
 							</div>
 
 							<div class="row g-3">
 								<div class="col-md-4">
 									<label class="form-label text-light fw-semibold" for="duration"
-										>Duration (minutes)</label
+										>Duration (minutes) <span style="color: red;">*</span></label
 									>
 									<input
 										id="duration"
@@ -149,7 +152,7 @@
 									/>
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="level">Level</label>
+									<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
 									<select
 										id="level"
 										name="level"
@@ -166,7 +169,7 @@
 
 							<div>
 								<label class="form-label text-light fw-semibold" for="categoryInput"
-									>Categories</label
+									>Categories <span style="color: red;">*</span></label
 								>
 								<div class="input-group">
 									<input
@@ -178,7 +181,7 @@
 										on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
 									/>
 									<button type="button" class="btn btn-outline-warning" on:click={addCategory}
-										>Add</button
+										>Add Category</button
 									>
 								</div>
 								{#if submitted && form.categories.length === 0}<div class="text-danger small mt-2">
@@ -206,7 +209,7 @@
 
 							<div>
 								<div class="d-flex align-items-center justify-content-between mb-2">
-									<span class="form-label text-light fw-semibold mb-0">Select Exercises</span>
+									<span class="form-label text-light fw-semibold mb-0">Select Exercises <span style="color: red;">*</span></span>
 									<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 								</div>
 

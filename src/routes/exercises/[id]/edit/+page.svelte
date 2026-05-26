@@ -39,7 +39,6 @@
 		if (!form.name.trim()) errors.push('Name is required');
 		if (form.categories.length === 0) errors.push('At least one category is required');
 		if (!form.level) errors.push('Level is required');
-		if (!form.description.trim()) errors.push('Description is required');
 		if (form.sets < 0 || isNaN(form.sets)) errors.push('Sets must be a non-negative number');
 		if (form.reps < 0 || isNaN(form.reps)) errors.push('Reps must be a non-negative number');
 		if (form.duration < 0 || isNaN(form.duration))
@@ -111,22 +110,25 @@
 								</div>
 							{/if}
 
-							<div class="form-floating">
+							<div>
+								<label class="form-label text-light fw-semibold" for="name"
+									>Exercise Name <span style="color: red;">*</span></label
+								>
 								<input
 									id="name"
 									name="name"
 									class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
 									type="text"
 									bind:value={form.name}
+									title="Exercise Name (required)"
 									placeholder="e.g., Push-ups"
 									required
 								/>
-								<label for="name">Exercise Name</label>
 							</div>
 
 							<div>
 								<label class="form-label text-light fw-semibold" for="categoryInput"
-									>Categories</label
+									>Categories <span style="color: red;">*</span></label
 								>
 								<div class="input-group">
 									<input
@@ -138,7 +140,7 @@
 										on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
 									/>
 									<button type="button" class="btn btn-outline-warning" on:click={addCategory}
-										>Add</button
+										>Add Category</button
 									>
 								</div>
 								{#if submitted && form.categories.length === 0}<div class="text-danger small mt-2">
@@ -166,7 +168,7 @@
 
 							<div class="row g-3">
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="level">Level</label>
+									<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
 									<select
 										id="level"
 										name="level"
@@ -180,7 +182,7 @@
 									</select>
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="sets">Sets</label>
+									<label class="form-label text-light fw-semibold" for="sets">Sets <span style="color: red;">*</span></label>
 									<input
 										id="sets"
 										name="sets"
@@ -192,7 +194,7 @@
 									/>
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="reps">Reps</label>
+									<label class="form-label text-light fw-semibold" for="reps">Reps <span style="color: red;">*</span></label>
 									<input
 										id="reps"
 										name="reps"
@@ -205,22 +207,23 @@
 								</div>
 							</div>
 
-							<div class="form-floating">
+							<div>
+								<label class="form-label text-light fw-semibold" for="description"
+									>Description (optional)</label
+								>
 								<textarea
 									id="description"
 									name="description"
-									class={`form-control bg-dark text-light border-secondary ${submitted && !form.description.trim() ? 'is-invalid' : ''}`}
+									class="form-control bg-dark text-light border-secondary"
 									bind:value={form.description}
 									placeholder="Describe how to perform this exercise..."
 									style="height: 140px"
-									required
 								></textarea>
-								<label for="description">Description</label>
 							</div>
 
 							<div>
 								<label class="form-label text-light fw-semibold" for="duration"
-									>Duration (minutes)</label
+									>Duration (minutes) <span style="color: red;">*</span></label
 								>
 								<input
 									id="duration"
