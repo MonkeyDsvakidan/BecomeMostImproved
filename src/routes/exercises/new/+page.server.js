@@ -1,26 +1,5 @@
-import connectToDatabase from '$lib/db/mongodb';
 import { fail } from '@sveltejs/kit';
-
-function toPlainDocument(document) {
-	return JSON.parse(JSON.stringify(document));
-}
-
-export async function load() {
-	try {
-		const db = await connectToDatabase();
-		const exercises = await db.collection('exercises').find({}).sort({ createdAt: -1 }).toArray();
-
-		return {
-			exercises: exercises.map(toPlainDocument)
-		};
-	} catch (error) {
-		console.error('GET /workouts/new load error:', error);
-		return {
-			exercises: [],
-			error: 'Failed to load exercises'
-		};
-	}
-}
+import connectToDatabase from '$lib/db/mongodb';
 
 function parseNonNegativeNumber(value, fieldName) {
 	const parsed = Number(value);
@@ -39,18 +18,20 @@ export const actions = {
 			.map((item) => String(item).trim())
 			.filter(Boolean);
 		const level = String(formData.get('level') ?? '').trim();
+		const description = String(formData.get('description') ?? '').trim();
+
+		const setsResult = parseNonNegativeNumber(formData.get('sets'), 'Sets');
+		const repsResult = parseNonNegativeNumber(formData.get('reps'), 'Reps');
 		const durationResult = parseNonNegativeNumber(formData.get('duration'), 'Duration');
-		const exerciseIds = formData
-			.getAll('exerciseIds')
-			.map((item) => String(item).trim())
-			.filter(Boolean);
 
 		const errors = [];
 		if (!name) errors.push('Name is required');
 		if (categories.length === 0) errors.push('At least one category is required');
 		if (!level) errors.push('Level is required');
+		if (!description) errors.push('Description is required');
+		if (setsResult.error) errors.push(setsResult.error);
+		if (repsResult.error) errors.push(repsResult.error);
 		if (durationResult.error) errors.push(durationResult.error);
-		if (exerciseIds.length === 0) errors.push('At least one exercise must be selected');
 
 		if (errors.length > 0) {
 			return fail(400, { errors });
@@ -61,26 +42,28 @@ export const actions = {
 			const now = new Date();
 			const doc = {
 				name,
-				duration: durationResult.value,
-				categories,
+				category: categories,
 				level,
-				exerciseIds,
+				description,
+				sets: setsResult.value,
+				reps: repsResult.value,
+				duration: durationResult.value,
 				createdAt: now,
 				updatedAt: now
 			};
 
-			const result = await db.collection('workouts').insertOne(doc);
+			const result = await db.collection('exercises').insertOne(doc);
 			if (!result.acknowledged) {
-				return fail(500, { error: 'Failed to create workout' });
+				return fail(500, { error: 'Failed to create exercise' });
 			}
 
 			return {
 				success: true,
-				message: 'Workout created!'
+				message: 'Exercise created!'
 			};
 		} catch (error) {
-			console.error('POST /workouts/new action error:', error);
-			return fail(500, { error: 'Failed to create workout' });
+			console.error('POST /exercises/new action error:', error);
+			return fail(500, { error: 'Failed to create exercise' });
 		}
 	}
 };
