@@ -24,13 +24,29 @@
 			<img src="/icon.svg" alt="" aria-hidden="true" class="hero-icon" />
 			<div class="text-center text-md-start flex-grow-1">
 				<h1 class="display-5 fw-bold mb-2">Welcome to BallToTheTop</h1>
-				<p class="lead text-secondary mb-0">
-					Transform your fitness journey one workout at a time.
-				</p>
+				<div class="d-flex flex-wrap gap-3 mt-3">
+					{#if totalWorkouts > 3}
+						<a href={resolve('/workouts')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+							<div class="display-6 mb-1">🎯</div>
+							<div class="fw-semibold">View All Workouts</div>
+						</a>
+					{/if}
+					{#if totalExercises > 0}
+						<a href={resolve('/exercises')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+							<div class="display-6 mb-1">📋</div>
+							<div class="fw-semibold">Browse Exercises</div>
+						</a>
+					{/if}
+					<a href={resolve('/workouts/new')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+						<div class="display-6 mb-1">➕</div>
+						<div class="fw-semibold">Create Workout</div>
+					</a>
+					<a href={resolve('/exercises/new')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+						<div class="display-6 mb-1">✏️</div>
+						<div class="fw-semibold">Create Exercise</div>
+					</a>
+				</div>
 			</div>
-			<a href={resolve('/workouts/new')} class="btn btn-primary btn-orange btn-lg ms-md-auto"
-				>Create Workout</a
-			>
 		</div>
 	</div>
 
@@ -199,45 +215,7 @@
 		</div>
 	{/if}
 
-	<div class="row g-3">
-		{#if totalWorkouts > 3}
-			<div class="col-12 col-md-4">
-				<a
-					href={resolve('/workouts')}
-					class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100"
-				>
-					<div class="card-body text-center py-4">
-						<div class="display-6 mb-2">🎯</div>
-						<div class="fw-semibold">View All Workouts</div>
-					</div>
-				</a>
-			</div>
-		{/if}
-		{#if totalExercises > 0}
-			<div class="col-12 col-md-4">
-				<a
-					href={resolve('/exercises')}
-					class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100"
-				>
-					<div class="card-body text-center py-4">
-						<div class="display-6 mb-2">📋</div>
-						<div class="fw-semibold">Browse Exercises</div>
-					</div>
-				</a>
-			</div>
-		{/if}
-		<div class="col-12 col-md-4">
-			<a
-				href={resolve('/workouts/new')}
-				class="card bg-dark text-light border-secondary shadow-sm rounded-3 text-decoration-none dashboard-link h-100"
-			>
-				<div class="card-body text-center py-4">
-					<div class="display-6 mb-2">➕</div>
-					<div class="fw-semibold">Create Workout</div>
-				</div>
-			</a>
-		</div>
-	</div>
+	<!-- Bottom action cards removed because hero now contains action cards to avoid duplication -->
 </section>
 
 <style>
@@ -256,6 +234,31 @@
 		.hero-icon {
 			width: 8.5rem;
 			height: 8.5rem;
+		}
+	}
+
+	.action-card {
+		min-width: 11rem;
+		min-height: 7rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		transition:
+			transform 160ms ease,
+			box-shadow 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.action-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35) !important;
+		border-color: rgba(255, 140, 0, 0.35) !important;
+	}
+
+	@media (min-width: 768px) {
+		.action-card {
+			min-height: 8.5rem;
 		}
 	}
 
