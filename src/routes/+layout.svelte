@@ -1,5 +1,6 @@
 <script>
 	import 'bootstrap/dist/css/bootstrap.min.css';
+	import '../styles/overrides.css';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import ToastNotification from '$lib/components/ToastNotification.svelte';
@@ -23,7 +24,9 @@
 			--bs-dark: #1a1a1a;
 			--bs-body-bg: #121212;
 			--bs-body-color: #f5f5f5;
-			--bs-secondary: #2a2a2a;
+			--bs-secondary: #ff964f; /* accent secondary color */
+			--bs-secondary-color: #ff964f;
+			--bs-secondary-rgb: 255,150,79;
 			--bs-border-color: rgba(255, 255, 255, 0.08);
 		}
 
@@ -68,6 +71,20 @@
 			opacity: 1;
 			transform: translateY(-1px);
 		}
+
+		.text-input {
+			color: #e9ecef !important;
+		}
+
+		.control-input {
+			color: #adb5bd !important;
+		}
+
+		.control-input option {
+			color: #adb5bd;
+		}
+
+		/* text-secondary now set via Bootstrap variables in src/app.html */
 	</style>
 </svelte:head>
 

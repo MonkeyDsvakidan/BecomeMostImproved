@@ -116,7 +116,7 @@
 							<input
 								id="name"
 								name="name"
-								class={`form-control bg-dark text-light border-secondary ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
+								class={`form-control bg-dark border-secondary text-input ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
 								type="text"
 								bind:value={form.name}
 								title="Exercise Name (required)"
@@ -135,7 +135,7 @@
 								<input
 									id="categoryInput"
 									type="text"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary text-input ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
 									bind:value={categoryInput}
 									placeholder="e.g., Chest, Cardio"
 									on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
@@ -175,7 +175,7 @@
 								<select
 									id="level"
 									name="level"
-									class={`form-select bg-dark text-light border-secondary ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
+									class={`form-select bg-dark border-secondary control-input ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
 									bind:value={form.level}
 									required
 								>
@@ -192,7 +192,7 @@
 								<input
 									id="sets"
 									name="sets"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.sets}
 									min="0"
@@ -209,7 +209,7 @@
 								<input
 									id="reps"
 									name="reps"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.reps}
 									min="0"
@@ -230,7 +230,7 @@
 							<textarea
 								id="description"
 								name="description"
-								class="form-control bg-dark text-light border-secondary"
+									class="form-control bg-dark border-secondary text-input"
 								bind:value={form.description}
 								placeholder="Describe how to perform this exercise..."
 								style="height: 140px"
@@ -245,7 +245,7 @@
 								<input
 									id="duration"
 									name="duration"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.duration}
 									min="0"

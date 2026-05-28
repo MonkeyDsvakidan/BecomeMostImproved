@@ -6,6 +6,14 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
 		<meta name="color-scheme" content="dark" />
+		<!-- Ensure Bootstrap picks up our secondary color by defining variables before CSS loads -->
+		<style>
+			:root {
+				--bs-secondary: #ff964f;
+				--bs-secondary-color: #ff964f;
+				--bs-secondary-rgb: 255,150,79;
+			}
+		</style>
 		<style>
 			html,
 			body {

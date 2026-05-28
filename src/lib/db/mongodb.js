@@ -3,15 +3,15 @@ import { MongoClient } from 'mongodb';
 
 const maxPoolSize = 10;
 
-if (!MONGODB_URI) {
-	throw new Error('MONGODB_URI environment variable is required');
-}
-
 // Use cached instances to enable connection pooling and reuse across module reloads
 let cachedClient = globalThis.__mongoClient || null;
 let cachedDb = globalThis.__mongoDb || null;
 
 export async function connectToDatabase() {
+	if (!MONGODB_URI) {
+		throw new Error('MONGODB_URI environment variable is required');
+	}
+
 	if (cachedDb) return cachedDb;
 
 	try {

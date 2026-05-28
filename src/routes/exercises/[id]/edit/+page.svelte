@@ -22,6 +22,28 @@
 	let submitting = false;
 	let submitted = false;
 
+	const fieldErrorMatchers = {
+		name: ['name is required'],
+		categories: ['at least one category is required'],
+		level: ['level is required'],
+		sets: ['sets must be a non-negative number'],
+		reps: ['reps must be a non-negative number'],
+		duration: ['duration must be a non-negative number']
+	};
+
+	function getFieldError(field) {
+		const matchers = fieldErrorMatchers[field] ?? [];
+		const found = errors.find((err) => {
+			const lowered = err.toLowerCase();
+			return matchers.some((matcher) => lowered.includes(matcher));
+		});
+		return found ?? '';
+	}
+
+	function isFieldInvalid(field) {
+		return Boolean(getFieldError(field));
+	}
+
 	function addCategory() {
 		const trimmed = categoryInput.trim();
 		if (trimmed && !form.categories.includes(trimmed)) {
@@ -111,48 +133,45 @@
 							{/if}
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="name"
-									>Exercise Name <span style="color: red;">*</span></label
-								>
+								<label class="form-label text-light fw-semibold" for="name">Exercise Name <span style="color: red;">*</span></label>
 								<input
 									id="name"
 									name="name"
-									class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary text-input ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
 									type="text"
 									bind:value={form.name}
 									title="Exercise Name (required)"
 									placeholder="e.g., Push-ups"
 									required
 								/>
+								{#if submitted && !form.name.trim()}
+									<div class="invalid-feedback">Name is required</div>
+								{/if}
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="categoryInput"
-									>Categories <span style="color: red;">*</span></label
-								>
+								<label class="form-label text-light fw-semibold" for="categoryInput">Categories <span style="color: red;">*</span></label>
 								<div class="input-group">
 									<input
 										id="categoryInput"
 										type="text"
-										class="form-control bg-dark text-light border-secondary"
+										class="form-control bg-dark border-secondary text-input"
 										bind:value={categoryInput}
 										placeholder="e.g., Chest, Cardio"
 										on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
 									/>
-									<button type="button" class="btn btn-outline-warning" on:click={addCategory}
-										>Add Category</button
-									>
+									<button type="button" class="btn btn-outline-warning" on:click={addCategory}>
+										Add Category
+									</button>
 								</div>
-								{#if submitted && form.categories.length === 0}<div class="text-danger small mt-2">
-										At least one category is required.
-									</div>{/if}
+								{#if submitted && form.categories.length === 0}
+									<div class="text-danger small mt-2">At least one category is required.</div>
+								{/if}
 								{#if form.categories.length > 0}
 									<div class="d-flex flex-wrap gap-2 mt-3">
 										{#each form.categories as cat, index (cat + index)}
 											<input type="hidden" name="categories" value={cat} />
-											<span
-												class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2"
-											>
+											<span class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2">
 												{cat}
 												<button
 													type="button"
@@ -172,7 +191,7 @@
 									<select
 										id="level"
 										name="level"
-										class="form-select bg-dark text-light border-secondary"
+										class={`form-select bg-dark border-secondary control-input ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
 										bind:value={form.level}
 										required
 									>
@@ -180,41 +199,48 @@
 										<option value="Intermediate">Intermediate</option>
 										<option value="Advanced">Advanced</option>
 									</select>
+									{#if isFieldInvalid('level')}
+										<div class="invalid-feedback">{getFieldError('level')}</div>
+									{/if}
 								</div>
 								<div class="col-md-4">
 									<label class="form-label text-light fw-semibold" for="sets">Sets <span style="color: red;">*</span></label>
 									<input
 										id="sets"
 										name="sets"
-										class={`form-control bg-dark text-light border-secondary ${submitted && (form.sets < 0 || isNaN(form.sets)) ? 'is-invalid' : ''}`}
+										class={`form-control bg-dark border-secondary control-input ${(submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets') ? 'is-invalid' : ''}`}
 										type="number"
 										bind:value={form.sets}
 										min="0"
 										required
 									/>
+									{#if (submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets')}
+										<div class="invalid-feedback">{getFieldError('sets') || 'Sets must be a non-negative number'}</div>
+									{/if}
 								</div>
 								<div class="col-md-4">
 									<label class="form-label text-light fw-semibold" for="reps">Reps <span style="color: red;">*</span></label>
 									<input
 										id="reps"
 										name="reps"
-										class={`form-control bg-dark text-light border-secondary ${submitted && (form.reps < 0 || isNaN(form.reps)) ? 'is-invalid' : ''}`}
+										class={`form-control bg-dark border-secondary control-input ${(submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps') ? 'is-invalid' : ''}`}
 										type="number"
 										bind:value={form.reps}
 										min="0"
 										required
 									/>
+									{#if (submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps')}
+										<div class="invalid-feedback">{getFieldError('reps') || 'Reps must be a non-negative number'}</div>
+									{/if}
 								</div>
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="description"
-									>Description (optional)</label
-								>
+								<label class="form-label text-light fw-semibold" for="description">Description (optional)</label>
 								<textarea
 									id="description"
 									name="description"
-									class="form-control bg-dark text-light border-secondary"
+									class="form-control bg-dark border-secondary text-input"
 									bind:value={form.description}
 									placeholder="Describe how to perform this exercise..."
 									style="height: 140px"
@@ -222,18 +248,19 @@
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="duration"
-									>Duration (minutes) <span style="color: red;">*</span></label
-								>
+								<label class="form-label text-light fw-semibold" for="duration">Duration (minutes) <span style="color: red;">*</span></label>
 								<input
 									id="duration"
 									name="duration"
-									class={`form-control bg-dark text-light border-secondary ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.duration}
 									min="0"
 									required
 								/>
+								{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
+									<div class="invalid-feedback">{getFieldError('duration') || 'Duration must be a non-negative number'}</div>
+								{/if}
 							</div>
 
 							<div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-2">

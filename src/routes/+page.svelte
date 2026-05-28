@@ -152,7 +152,7 @@
 								{#if workout.categories && workout.categories.length > 0}
 									<div class="d-flex flex-wrap gap-2">
 										{#each workout.categories as cat, index (cat + index)}
-											<span class="badge rounded-pill bg-secondary text-light">{cat}</span>
+											<span class="badge rounded-pill bg-primary text-dark">{cat}</span>
 										{/each}
 									</div>
 								{/if}
@@ -183,10 +183,10 @@
 									</div>
 								</div>
 								<div class="d-flex flex-wrap gap-2 align-items-center">
-									<span class="badge bg-secondary text-light rounded-pill"
+									<span class="badge bg-primary text-dark rounded-pill"
 										>{session.exerciseCount} exercises</span
 									>
-									<span class="badge bg-secondary text-light rounded-pill"
+									<span class="badge bg-primary text-dark rounded-pill"
 										>{session.actualDurationLabel ?? '00:00'}</span
 									>
 									<span class="badge bg-primary text-dark rounded-pill">{session.level}</span>

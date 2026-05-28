@@ -1,0 +1,53 @@
+:root {
+  --bs-secondary: #ff964f;
+  --bs-secondary-color: #ff964f;
+  --bs-secondary-rgb: 255,150,79;
+}
+
+/* Ensure utilities using the variable render in the intended color */
+.text-secondary {
+  color: rgba(var(--bs-secondary-rgb), var(--bs-text-opacity, 1)) !important;
+}
+
+/* Fallback for places that don't use the CSS var */
+.text-secondary-fallback {
+  color: #ff964f !important;
+}
+
+/* Darken the primary blue used on badges slightly */
+.bg-primary {
+  background-color: #00cec8 !important;
+  border-color: #00cec8 !important;
+}
+
+.text-primary {
+  color: #00cec8 !important;
+}
+
+/* Improve form field readability and visual distinction */
+.form-control.text-input {
+  color: #ffffff !important; /* stronger contrast for text inputs */
+  background-color: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.form-control.text-input::placeholder {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+.form-select.control-input {
+  color: #00cec8 !important; /* cyan for selects */
+  background-color: rgba(0,206,200,0.03) !important;
+  border-color: rgba(0,206,200,0.25) !important;
+}
+
+/* Slight visual difference for number inputs / controls */
+.form-control[type="number"].control-input {
+  color: #cfeef0 !important;
+  background-color: rgba(255,255,255,0.01) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Make badges and small controls more distinct */
+.badge {
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2) inset;
+}

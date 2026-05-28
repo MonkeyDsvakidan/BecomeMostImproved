@@ -16,7 +16,7 @@
 		</div>
 		<div class="d-flex flex-wrap gap-2">
 			{#each category as cat, index (cat + index)}
-				<span class="badge rounded-pill bg-secondary text-light">{cat}</span>
+				<span class="badge rounded-pill bg-success text-dark">{cat}</span>
 			{/each}
 		</div>
 	</div>

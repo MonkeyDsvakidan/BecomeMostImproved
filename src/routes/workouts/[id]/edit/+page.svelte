@@ -127,7 +127,7 @@
 								<input
 									id="name"
 									name="name"
-									class={`form-control bg-dark text-light border-secondary ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary text-input ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
 									type="text"
 									bind:value={form.name}
 									title="Workout Name (required)"
@@ -144,7 +144,7 @@
 									<input
 										id="duration"
 										name="duration"
-										class={`form-control bg-dark text-light border-secondary ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`}
+										class={`form-control bg-dark border-secondary control-input ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`}
 										type="number"
 										bind:value={form.duration}
 										min="0"
@@ -152,11 +152,13 @@
 									/>
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
+									<label class="form-label text-light fw-semibold" for="level"
+										>Level <span style="color: red;">*</span></label
+									>
 									<select
 										id="level"
 										name="level"
-										class="form-select bg-dark text-light border-secondary"
+										class="form-select bg-dark border-secondary control-input"
 										bind:value={form.level}
 										required
 									>
@@ -175,7 +177,7 @@
 									<input
 										id="categoryInput"
 										type="text"
-										class="form-control bg-dark text-light border-secondary"
+										class="form-control bg-dark border-secondary text-input"
 										bind:value={categoryInput}
 										placeholder="e.g., Strength, Cardio"
 										on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
@@ -209,7 +211,9 @@
 
 							<div>
 								<div class="d-flex align-items-center justify-content-between mb-2">
-									<span class="form-label text-light fw-semibold mb-0">Select Exercises <span style="color: red;">*</span></span>
+									<span class="form-label text-light fw-semibold mb-0"
+										>Select Exercises <span style="color: red;">*</span></span
+									>
 									<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 								</div>
 

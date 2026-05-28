@@ -90,7 +90,6 @@
 		return async ({ result, update }) => {
 			await update();
 			loading = false;
-
 			if (result.type === 'success' && result.data?.success) {
 				showSuccessToast(result.data.message || 'Workout created!');
 				await goto(resolve('/workouts'));
@@ -129,7 +128,7 @@
 							<input
 								id="name"
 								name="name"
-								class={`form-control bg-dark text-light border-secondary ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
+								class={`form-control bg-dark border-secondary text-input ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
 								type="text"
 								bind:value={form.name}
 								title="Workout Name (required)"
@@ -149,7 +148,7 @@
 								<input
 									id="duration"
 									name="duration"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
 									type="number"
 									bind:value={form.duration}
 									min="0"
@@ -166,7 +165,7 @@
 								<select
 									id="level"
 									name="level"
-									class={`form-select bg-dark text-light border-secondary ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
+									class={`form-select bg-dark border-secondary control-input ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
 									bind:value={form.level}
 									required
 								>
@@ -187,7 +186,7 @@
 								<input
 									id="categoryInput"
 									type="text"
-									class={`form-control bg-dark text-light border-secondary ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary text-input ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
 									bind:value={categoryInput}
 									placeholder="e.g., Strength, Cardio"
 									on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}

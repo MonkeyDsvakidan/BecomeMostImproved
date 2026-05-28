@@ -324,7 +324,7 @@
 
 				<div class="d-flex flex-wrap gap-2">
 					{#each currentExercise.category ?? [] as cat, index (cat + index)}
-						<span class="badge rounded-pill bg-secondary text-light px-3 py-2">{cat}</span>
+						<span class="badge rounded-pill bg-primary text-dark px-3 py-2">{cat}</span>
 					{/each}
 				</div>
 			</div>
