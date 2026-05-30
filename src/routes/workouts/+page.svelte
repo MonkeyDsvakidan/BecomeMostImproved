@@ -4,6 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { showErrorToast, showSuccessToast } from '$lib/stores/toast';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -16,6 +18,8 @@
 	let selectedDuration = '';
 	let loading = false;
 	let error = data?.error ?? '';
+	let searchQuery = '';
+	let searchInput;
 	const deleting = new SvelteSet();
 
 	const sortLabels = {
@@ -51,6 +55,31 @@
 		error = data?.error ?? '';
 	}
 
+	// init searchQuery from URL
+	onMount(() => {
+		try {
+			const q = $page.url.searchParams.get('q');
+			if (q) searchQuery = q;
+		} catch (e) {}
+	});
+
+	// keep input visible and in-sync with URL `q` when the page store changes,
+	// but don't overwrite while the user is actively typing (input is focused)
+	$: try {
+		const qFromUrl = $page.url.searchParams.get('q') ?? '';
+		if (typeof document !== 'undefined' && searchInput && document.activeElement === searchInput) {
+			// user is typing — don't clobber
+		} else if (qFromUrl !== (searchQuery ?? '')) {
+			searchQuery = qFromUrl;
+		}
+	} catch (e) {}
+
+	$: visibleWorkouts = (workouts || []).filter((w) => {
+		if (!searchQuery) return true;
+		const q = String(searchQuery).toLowerCase();
+		return (w.name || '').toLowerCase().includes(q);
+	});
+
 	function buildHref(overrides = {}) {
 		const params = new URLSearchParams();
 		const nextSortMode = overrides.sortMode ?? sortMode;
@@ -66,6 +95,8 @@
 		}
 		if (nextExerciseCount) params.set('exerciseCount', nextExerciseCount);
 		if (nextDuration) params.set('duration', nextDuration);
+		const nextQuery = overrides.q ?? searchQuery;
+		if (nextQuery) params.set('q', nextQuery);
 
 		const query = params.toString();
 		return query ? `?${query}` : '';
@@ -144,6 +175,10 @@
 			<p class="text-secondary mb-0">Manage workout plans and launch sessions quickly.</p>
 		</div>
 		<div class="d-flex gap-2 flex-wrap justify-content-xl-end">
+			<div class="input-group me-2">
+				<input bind:this={searchInput} type="search" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Search workouts" bind:value={searchQuery} on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), navigateWith({ q: searchQuery }))} />
+				<button class="btn btn-sm btn-outline-light" type="button" on:click={() => { searchQuery = ''; navigateWith({ q: '' }); }} title="Clear search">×</button>
+			</div>
 			<button class="btn btn-outline-light" on:click={fetchWorkouts} disabled={loading}>
 				{#if loading}
 					<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
@@ -257,7 +292,7 @@
 		</div>
 	{:else}
 		<div class="row g-4">
-			{#each workouts as workout (workout._id)}
+			{#each visibleWorkouts as workout (workout._id)}
 				<div class="col-12 col-md-6 col-lg-4">
 					<WorkoutCard {workout} onDelete={deleteWorkout} />
 				</div>

@@ -96,6 +96,8 @@ export const actions = {
 			.filter(Boolean);
 		const level = String(formData.get('level') ?? '').trim();
 		const durationResult = parseNonNegativeNumber(formData.get('duration'), 'Duration');
+		const autoDuration = String(formData.get('autoDuration') ?? 'true') === 'true';
+		const pausePerExerciseResult = parseNonNegativeNumber(formData.get('pausePerExercise') ?? '0', 'Pause per exercise');
 		const exerciseIds = formData
 			.getAll('exerciseIds')
 			.map((item) => String(item).trim())
@@ -106,6 +108,7 @@ export const actions = {
 		if (categories.length === 0) errors.push('At least one category is required');
 		if (!level) errors.push('Level is required');
 		if (durationResult.error) errors.push(durationResult.error);
+		if (pausePerExerciseResult.error) errors.push(pausePerExerciseResult.error);
 		if (exerciseIds.length === 0) errors.push('At least one exercise must be selected');
 
 		if (errors.length > 0) {
@@ -116,12 +119,27 @@ export const actions = {
 			const db = await connectToDatabase();
 			const oid = new ObjectId(id);
 
+			let finalDuration = durationResult.value;
+
+			// If autoDuration is requested, compute server-side from exercises
+			if (autoDuration) {
+				const exerciseObjectIds = exerciseIds.map((exerciseId) => new ObjectId(exerciseId));
+				const exercises = await db
+					.collection('exercises')
+					.find({ _id: { $in: exerciseObjectIds } })
+					.toArray();
+
+				const sum = exercises.reduce((s, ex) => s + (Number(ex.duration) || 0), 0);
+				const pause = (pausePerExerciseResult.value || 0) * exerciseObjectIds.length;
+				finalDuration = sum + pause;
+			}
+
 			const updateResult = await db.collection('workouts').updateOne(
 				{ _id: oid },
 				{
 					$set: {
 						name,
-						duration: durationResult.value,
+						duration: finalDuration,
 						categories,
 						level,
 						exerciseIds: exerciseIds.map((exerciseId) => new ObjectId(exerciseId)),

@@ -25,6 +25,29 @@
 	let categoryInput = '';
 	let selectedExercises = new SvelteSet();
 
+	// Auto-duration controls
+	let autoDuration = true; // when true, form.duration is kept in sync with calculatedDuration
+	let pausePerExercise = 0; // minutes of pause added per exercise (optional feature)
+
+	$: selectedExerciseObjects = form.exerciseIds
+		? form.exerciseIds
+			.map((id) => allExercises.find((e) => String(e._id) === String(id)))
+			.filter(Boolean)
+		: [];
+
+	$: calculatedDuration = selectedExerciseObjects.reduce(
+		(sum, ex) => sum + (Number(ex.duration) || 0),
+		0
+	) + (pausePerExercise ? pausePerExercise * selectedExerciseObjects.length : 0);
+
+	// Keep form.duration in sync when autoDuration is enabled
+	$: if (autoDuration) {
+		form.duration = calculatedDuration;
+	}
+
+	// Warning flag when any selected exercise lacks duration
+	$: missingDurations = selectedExerciseObjects.some((ex) => ex.duration == null || ex.duration === '');
+
 	$: knownExerciseCategories = Array.from(
 		new Set(
 			allExercises
@@ -210,15 +233,29 @@
 								<label class="form-label text-light fw-semibold" for="duration"
 									>Duration (minutes) <span style="color: red;">*</span></label
 								>
-								<input
-									id="duration"
-									name="duration"
-									class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
-									type="number"
-									bind:value={form.duration}
-									min="0"
-									required
-								/>
+									<div class="d-flex align-items-center gap-2">
+										<input
+											id="duration"
+											name="duration"
+											class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
+											type="number"
+											bind:value={form.duration}
+											min="0"
+											required
+											on:input={() => (autoDuration = false)}
+										/>
+										{#if autoDuration}
+											<span class="badge bg-success text-dark">Auto-calculated</span>
+										{:else}
+											<button type="button" class="btn btn-sm btn-outline-secondary" on:click={() => (autoDuration = true)} title="Recalculate from selected exercises">Use auto</button>
+										{/if}
+									</div>
+									<div class="small text-secondary mt-1">
+										Total Duration: {calculatedDuration} minutes
+										{#if missingDurations}
+											 — Some selected exercises have no duration (assumed 0)
+										{/if}
+									</div>
 								{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
 									<div class="invalid-feedback">
 										{getFieldError('duration') || 'Duration must be a non-negative number'}

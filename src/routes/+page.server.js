@@ -1,4 +1,16 @@
 import connectToDatabase from '$lib/db/mongodb';
+import { fail } from '@sveltejs/kit';
+import { ObjectId } from 'mongodb';
+
+function isValidObjectId(id) {
+	if (!id || typeof id !== 'string') return false;
+	try {
+		new ObjectId(id);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 function startOfWeek(date) {
 	const value = new Date(date);
@@ -185,3 +197,28 @@ export async function load() {
 		};
 	}
 }
+
+export const actions = {
+	deleteSession: async ({ request }) => {
+		const formData = await request.formData();
+		const sessionId = String(formData.get('sessionId') ?? '').trim();
+
+		if (!sessionId || !isValidObjectId(sessionId)) {
+			return fail(400, { error: 'Invalid session id' });
+		}
+
+		try {
+			const db = await connectToDatabase();
+			const result = await db.collection('sessions').deleteOne({ _id: new ObjectId(sessionId) });
+
+			if (result.deletedCount === 0) {
+				return fail(404, { error: 'Session not found' });
+			}
+
+			return { success: true };
+		} catch (error) {
+			console.error('POST / deleteSession action error:', error);
+			return fail(500, { error: 'Failed to remove session from history' });
+		}
+	}
+};

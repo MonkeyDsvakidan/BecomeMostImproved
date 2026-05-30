@@ -46,6 +46,15 @@ function buildPipeline(sortMode, sortDirection, filters) {
 	];
 
 	const match = {};
+	// q search across name, description, categories
+	if (filters.q) {
+		const q = String(filters.q).trim();
+		if (q) {
+			const regex = { $regex: q, $options: 'i' };
+			// Only search by `name` here; other filters use dedicated controls
+			match.name = regex;
+		}
+	}
 	if (filters.categories.length > 0) {
 		match.categories = { $in: filters.categories };
 	}
@@ -101,13 +110,15 @@ export async function GET({ url }) {
 		const selectedCategories = getFilterValues(url, 'category');
 		const selectedExerciseCount = getFilterValue(url, 'exerciseCount');
 		const selectedDuration = getFilterValue(url, 'duration');
+		const q = getFilterValue(url, 'q');
 		const workouts = await db
 			.collection('workouts')
 			.aggregate(
 				buildPipeline(sortMode, sortDirection, {
 					categories: selectedCategories,
 					exerciseCount: selectedExerciseCount,
-					duration: selectedDuration
+					duration: selectedDuration,
+					q
 				})
 			)
 			.toArray();

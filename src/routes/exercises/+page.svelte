@@ -4,6 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { showErrorToast, showSuccessToast } from '$lib/stores/toast';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -16,6 +18,8 @@
 	let selectedDuration = '';
 	let loading = false;
 	let error = data?.error ?? '';
+	let searchQuery = '';
+	let searchInput;
 	const deleting = new SvelteSet();
 
 	const sortLabels = {
@@ -51,6 +55,32 @@
 		error = data?.error ?? '';
 	}
 
+	// initialize searchQuery from URL (once)
+	onMount(() => {
+		try {
+			const q = $page.url.searchParams.get('q');
+			if (q) searchQuery = q;
+		} catch (e) {}
+	});
+
+	// keep input visible and in-sync with URL `q` when the page store changes,
+	// but don't overwrite while the user is actively typing (input is focused)
+	$: try {
+		const qFromUrl = $page.url.searchParams.get('q') ?? '';
+		if (typeof document !== 'undefined' && searchInput && document.activeElement === searchInput) {
+			// user is typing — don't clobber
+		} else if (qFromUrl !== (searchQuery ?? '')) {
+			searchQuery = qFromUrl;
+		}
+	} catch (e) {}
+
+	// client-side filtered list (applies on top of server filters)
+	$: visibleExercises = (exercises || []).filter((ex) => {
+		if (!searchQuery) return true;
+		const q = String(searchQuery).toLowerCase();
+		return (ex.name || '').toLowerCase().includes(q);
+	});
+
 	function buildHref(overrides = {}) {
 		const params = new URLSearchParams();
 		const nextSortMode = overrides.sortMode ?? sortMode;
@@ -66,6 +96,8 @@
 		}
 		if (nextLevel) params.set('level', nextLevel);
 		if (nextDuration) params.set('duration', nextDuration);
+		const nextQuery = overrides.q ?? searchQuery;
+		if (nextQuery) params.set('q', nextQuery);
 
 		const query = params.toString();
 		return query ? `?${query}` : '';
@@ -148,7 +180,11 @@
 			<h1 class="display-6 fw-bold mb-1">Exercises</h1>
 			<p class="text-secondary mb-0">Browse, create, and manage your exercise library.</p>
 		</div>
-		<div class="d-flex gap-2 flex-wrap justify-content-xl-end">
+			<div class="d-flex gap-2 flex-wrap justify-content-xl-end align-items-center">
+				<div class="input-group me-2">
+					<input bind:this={searchInput} type="search" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Search exercises" bind:value={searchQuery} on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), navigateWith({ q: searchQuery }))} />
+					<button class="btn btn-sm btn-outline-light" type="button" on:click={() => { searchQuery = ''; navigateWith({ q: '' }); }} title="Clear search">×</button>
+				</div>
 			<button class="btn btn-outline-light" on:click={fetchExercises} disabled={loading}>
 				{#if loading}
 					<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
@@ -261,13 +297,13 @@
 			<a href={resolve('/exercises/new')} class="btn btn-primary btn-orange">Create Exercise</a>
 		</div>
 	{:else}
-		<div class="row g-4">
-			{#each exercises as ex (ex._id)}
-				<div class="col-12 col-md-6 col-lg-4">
-					<ExerciseCard exercise={ex} onDelete={deleteExercise} />
-				</div>
-			{/each}
-		</div>
+			<div class="row g-4">
+				{#each visibleExercises as ex (ex._id)}
+					<div class="col-12 col-md-6 col-lg-4">
+						<ExerciseCard exercise={ex} onDelete={deleteExercise} />
+					</div>
+				{/each}
+			</div>
 	{/if}
 </section>
 
