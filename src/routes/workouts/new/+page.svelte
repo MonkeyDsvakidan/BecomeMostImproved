@@ -12,6 +12,7 @@
 	let errors = data?.error ? [data.error] : [];
 	let loading = false;
 	let submitted = false;
+	let showAllExercises = false;
 
 	let form = {
 		name: '',
@@ -23,6 +24,59 @@
 
 	let categoryInput = '';
 	let selectedExercises = new SvelteSet();
+
+	$: knownExerciseCategories = Array.from(
+		new Set(
+			allExercises
+				.flatMap((exercise) => (exercise.category ?? []).map((cat) => String(cat).trim()))
+				.filter(Boolean)
+		)
+	);
+
+	function normalizeCategoryValue(value) {
+		return String(value ?? '').trim().toLowerCase();
+	}
+
+	function findCanonicalCategory(rawValue) {
+		const trimmed = String(rawValue ?? '').trim();
+		const normalized = normalizeCategoryValue(trimmed);
+		if (!normalized) return '';
+
+		const exactMatch = knownExerciseCategories.find(
+			(category) => normalizeCategoryValue(category) === normalized
+		);
+		if (exactMatch) return exactMatch;
+
+		const fuzzyMatches = knownExerciseCategories.filter((category) => {
+			const normalizedCategory = normalizeCategoryValue(category);
+			return normalizedCategory.includes(normalized) || normalized.includes(normalizedCategory);
+		});
+
+		if (fuzzyMatches.length > 0) {
+			return fuzzyMatches.sort((a, b) => b.length - a.length)[0];
+		}
+
+		return trimmed;
+	}
+
+	$: normalizedWorkoutCategories = form.categories.map((cat) => cat.trim().toLowerCase()).filter(Boolean);
+	$: activeExerciseFilter = normalizedWorkoutCategories[0] ?? '';
+	$: filteredExercises =
+		showAllExercises || normalizedWorkoutCategories.length === 0
+			? allExercises
+			: allExercises.filter((exercise) => {
+				const exerciseCategories = (exercise.category ?? []).map((cat) => String(cat).trim().toLowerCase());
+				return exerciseCategories.some((category) =>
+					normalizedWorkoutCategories.some(
+						(workoutCategory) => category.includes(workoutCategory) || workoutCategory.includes(category)
+					)
+				);
+			});
+	$: filterFeedbackLabel =
+		normalizedWorkoutCategories.length === 1
+			? `category '${form.categories[0]}'`
+			: `categories '${form.categories.join(', ')}'`;
+	$: activeFilterLabel = form.categories.length > 0 ? form.categories.join(', ') : '';
 
 	const fieldErrorMatchers = {
 		name: ['name is required'],
@@ -56,15 +110,26 @@
 	}
 
 	function addCategory() {
-		const trimmed = categoryInput.trim();
-		if (trimmed && !form.categories.includes(trimmed)) {
-			form.categories = [...form.categories, trimmed];
+		const canonical = findCanonicalCategory(categoryInput);
+		const normalizedCanonical = normalizeCategoryValue(canonical);
+		const alreadyExists = form.categories.some(
+			(category) => normalizeCategoryValue(category) === normalizedCanonical
+		);
+
+		if (canonical && !alreadyExists) {
+			form.categories = [...form.categories, canonical];
+			showAllExercises = false;
 			categoryInput = '';
 		}
 	}
 
 	function removeCategory(cat) {
 		form.categories = form.categories.filter((c) => c !== cat);
+		showAllExercises = false;
+	}
+
+	function showAllExercisesList() {
+		showAllExercises = true;
 	}
 
 	function validateForm() {
@@ -226,6 +291,29 @@
 								<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 							</div>
 
+							{#if normalizedWorkoutCategories.length > 0}
+								<div class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3">
+									<div class="text-light small fw-medium">
+										{#if showAllExercises}
+											Showing all exercises
+										{:else}
+											Showing {filteredExercises.length} exercises matching {filterFeedbackLabel}
+										{/if}
+									</div>
+									{#if !showAllExercises && activeFilterLabel}
+										<div class="text-secondary small">Active category filter: {activeFilterLabel}</div>
+									{/if}
+									<button
+										type="button"
+										class="btn btn-sm btn-outline-warning"
+										on:click={showAllExercisesList}
+										disabled={showAllExercises}
+									>
+										Show all exercises
+									</button>
+								</div>
+							{/if}
+
 							{#if exercisesLoading}
 								<div class="text-center py-4">
 									<div
@@ -241,11 +329,18 @@
 										>Create one</a
 									>.
 								</div>
+							{:else if filteredExercises.length === 0}
+								<div class="alert alert-info rounded-3 mb-0">
+									No exercises match {filterFeedbackLabel}.
+									<button type="button" class="btn btn-link p-0 ms-1 align-baseline" on:click={showAllExercisesList}>
+										Show all exercises
+									</button>
+								</div>
 							{:else}
 								<div
 									class={`list-group list-group-flush rounded-3 border border-secondary overflow-hidden ${submitted && form.exerciseIds.length === 0 ? 'border-danger' : ''}`}
 								>
-									{#each allExercises as exercise (exercise._id)}
+									{#each filteredExercises as exercise (exercise._id)}
 										<label
 											class="list-group-item bg-dark text-light border-secondary d-flex gap-3 align-items-start py-3"
 										>
@@ -298,6 +393,14 @@
 </section>
 
 <style>
+	.exercise-filter-panel {
+		background: #23272f;
+		border: 1px solid rgba(255, 140, 0, 0.7);
+		box-shadow:
+			0 0 0 1px rgba(255, 140, 0, 0.12),
+			0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+	}
+
 	.btn-orange {
 		background: #ff8c00;
 		border-color: #ff8c00;

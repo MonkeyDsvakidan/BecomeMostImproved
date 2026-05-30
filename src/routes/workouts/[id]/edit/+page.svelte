@@ -23,7 +23,81 @@
 	};
 
 	let categoryInput = '';
+	let showAllExercises = false;
 	let selectedExercises = new SvelteSet(form.exerciseIds);
+
+	$: knownExerciseCategories = Array.from(
+		new Set(
+			allExercises
+				.flatMap((exercise) => (exercise.category ?? []).map((cat) => String(cat).trim()))
+				.filter(Boolean)
+		)
+	);
+
+	function normalizeCategoryValue(value) {
+		return String(value ?? '').trim().toLowerCase();
+	}
+
+	function findCanonicalCategory(rawValue) {
+		const trimmed = String(rawValue ?? '').trim();
+		const normalized = normalizeCategoryValue(trimmed);
+		if (!normalized) return '';
+
+		const exactMatch = knownExerciseCategories.find(
+			(category) => normalizeCategoryValue(category) === normalized
+		);
+		if (exactMatch) return exactMatch;
+
+		const fuzzyMatches = knownExerciseCategories.filter((category) => {
+			const normalizedCategory = normalizeCategoryValue(category);
+			return normalizedCategory.includes(normalized) || normalized.includes(normalizedCategory);
+		});
+
+		if (fuzzyMatches.length > 0) {
+			return fuzzyMatches.sort((a, b) => b.length - a.length)[0];
+		}
+
+		return trimmed;
+	}
+
+	$: normalizedWorkoutCategories = form.categories.map((cat) => cat.trim().toLowerCase()).filter(Boolean);
+	$: activeFilterLabel = form.categories.length > 0 ? form.categories.join(', ') : '';
+	$: filterFeedbackLabel =
+		normalizedWorkoutCategories.length === 1
+			? `category '${form.categories[0]}'`
+			: `categories '${form.categories.join(', ')}'`;
+	$: filteredExercises =
+		showAllExercises || normalizedWorkoutCategories.length === 0
+			? allExercises
+			: allExercises.filter((exercise) => {
+				const exerciseCategories = (exercise.category ?? []).map((cat) => String(cat).trim().toLowerCase());
+				return exerciseCategories.some((category) =>
+					normalizedWorkoutCategories.some(
+						(workoutCategory) => category.includes(workoutCategory) || workoutCategory.includes(category)
+					)
+				);
+			});
+
+	const fieldErrorMatchers = {
+		name: ['name is required'],
+		duration: ['duration must be a non-negative number'],
+		level: ['level is required'],
+		categories: ['at least one category is required'],
+		exerciseIds: ['at least one exercise must be selected']
+	};
+
+	function getFieldError(field) {
+		const matchers = fieldErrorMatchers[field] ?? [];
+		const found = errors.find((err) => {
+			const lowered = err.toLowerCase();
+			return matchers.some((matcher) => lowered.includes(matcher));
+		});
+		return found ?? '';
+	}
+
+	function isFieldInvalid(field) {
+		return Boolean(getFieldError(field));
+	}
 
 	function toggleExercise(id) {
 		if (selectedExercises.has(id)) {
@@ -36,15 +110,26 @@
 	}
 
 	function addCategory() {
-		const trimmed = categoryInput.trim();
-		if (trimmed && !form.categories.includes(trimmed)) {
-			form.categories = [...form.categories, trimmed];
+		const canonical = findCanonicalCategory(categoryInput);
+		const normalizedCanonical = normalizeCategoryValue(canonical);
+		const alreadyExists = form.categories.some(
+			(category) => normalizeCategoryValue(category) === normalizedCanonical
+		);
+
+		if (canonical && !alreadyExists) {
+			form.categories = [...form.categories, canonical];
+			showAllExercises = false;
 			categoryInput = '';
 		}
 	}
 
 	function removeCategory(cat) {
 		form.categories = form.categories.filter((c) => c !== cat);
+		showAllExercises = false;
+	}
+
+	function showAllExercisesList() {
+		showAllExercises = true;
 	}
 
 	function validateForm() {
@@ -127,13 +212,16 @@
 								<input
 									id="name"
 									name="name"
-									class={`form-control bg-dark border-secondary text-input ${submitted && !form.name.trim() ? 'is-invalid' : ''}`}
+									class={`form-control bg-dark border-secondary text-input ${(submitted && !form.name.trim()) || isFieldInvalid('name') ? 'is-invalid' : ''}`}
 									type="text"
 									bind:value={form.name}
 									title="Workout Name (required)"
 									placeholder="e.g., Full Body Strength"
 									required
 								/>
+								{#if (submitted && !form.name.trim()) || isFieldInvalid('name')}
+									<div class="invalid-feedback">{getFieldError('name') || 'Name is required'}</div>
+								{/if}
 							</div>
 
 							<div class="row g-3">
@@ -144,12 +232,17 @@
 									<input
 										id="duration"
 										name="duration"
-										class={`form-control bg-dark border-secondary control-input ${submitted && (form.duration < 0 || isNaN(form.duration)) ? 'is-invalid' : ''}`}
+										class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
 										type="number"
 										bind:value={form.duration}
 										min="0"
 										required
 									/>
+									{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
+										<div class="invalid-feedback">
+											{getFieldError('duration') || 'Duration must be a non-negative number'}
+										</div>
+									{/if}
 								</div>
 								<div class="col-md-4">
 									<label class="form-label text-light fw-semibold" for="level"
@@ -158,7 +251,7 @@
 									<select
 										id="level"
 										name="level"
-										class="form-select bg-dark border-secondary control-input"
+										class={`form-select bg-dark border-secondary control-input ${isFieldInvalid('level') ? 'is-invalid' : ''}`}
 										bind:value={form.level}
 										required
 									>
@@ -166,6 +259,9 @@
 										<option value="Intermediate">Intermediate</option>
 										<option value="Advanced">Advanced</option>
 									</select>
+									{#if isFieldInvalid('level')}
+										<div class="invalid-feedback">{getFieldError('level')}</div>
+									{/if}
 								</div>
 							</div>
 
@@ -177,7 +273,7 @@
 									<input
 										id="categoryInput"
 										type="text"
-										class="form-control bg-dark border-secondary text-input"
+										class={`form-control bg-dark border-secondary text-input ${(submitted && form.categories.length === 0) || isFieldInvalid('categories') ? 'is-invalid' : ''}`}
 										bind:value={categoryInput}
 										placeholder="e.g., Strength, Cardio"
 										on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
@@ -186,9 +282,11 @@
 										>Add Category</button
 									>
 								</div>
-								{#if submitted && form.categories.length === 0}<div class="text-danger small mt-2">
-										At least one category is required.
-									</div>{/if}
+								{#if (submitted && form.categories.length === 0) || isFieldInvalid('categories')}
+									<div class="invalid-feedback d-block">
+										{getFieldError('categories') || 'At least one category is required'}
+									</div>
+								{/if}
 								{#if form.categories.length > 0}
 									<div class="d-flex flex-wrap gap-2 mt-3">
 										{#each form.categories as cat, index (cat + index)}
@@ -217,17 +315,52 @@
 									<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 								</div>
 
-								{#if allExercises.length === 0}
+									{#if normalizedWorkoutCategories.length > 0}
+										<div class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3">
+											<div class="text-light small fw-medium">
+												{#if showAllExercises}
+													Showing all exercises
+												{:else}
+													Showing {filteredExercises.length} exercises matching {filterFeedbackLabel}
+												{/if}
+											</div>
+											{#if !showAllExercises && activeFilterLabel}
+												<div class="text-secondary small">Active category filter: {activeFilterLabel}</div>
+											{/if}
+											<button
+												type="button"
+												class="btn btn-sm btn-outline-warning"
+												on:click={showAllExercisesList}
+												disabled={showAllExercises}
+											>
+												Show all exercises
+											</button>
+										</div>
+									{/if}
+
+									{#if exercisesLoading}
+										<div class="text-center py-4">
+											<div class="spinner-border text-primary" role="status" aria-label="Loading exercises"></div>
+											<p class="mt-3 text-secondary mb-0">Loading exercises…</p>
+										</div>
+									{:else if allExercises.length === 0}
 									<div class="alert alert-warning rounded-3 mb-0">
 										No exercises available. <a href={resolve('/exercises/new')} class="alert-link"
 											>Create one</a
 										>.
 									</div>
+									{:else if filteredExercises.length === 0}
+										<div class="alert alert-info rounded-3 mb-0">
+											No exercises match {filterFeedbackLabel}.
+											<button type="button" class="btn btn-link p-0 ms-1 align-baseline" on:click={showAllExercisesList}>
+												Show all exercises
+											</button>
+										</div>
 								{:else}
 									<div
 										class={`list-group list-group-flush rounded-3 border border-secondary overflow-hidden ${submitted && form.exerciseIds.length === 0 ? 'border-danger' : ''}`}
 									>
-										{#each allExercises as exercise (exercise._id)}
+										{#each filteredExercises as exercise (exercise._id)}
 											<label
 												class="list-group-item bg-dark text-light border-secondary d-flex gap-3 align-items-start py-3"
 											>
@@ -244,7 +377,7 @@
 													<span
 														class="d-flex flex-wrap gap-2 align-items-center small text-secondary"
 													>
-														{#each exercise.categories as cat, index (cat + index)}
+														{#each exercise.category ?? [] as cat, index (cat + index)}
 															<span class="badge rounded-pill bg-secondary text-light">{cat}</span>
 														{/each}
 														<span>Level: {exercise.level}</span>
@@ -254,9 +387,11 @@
 										{/each}
 									</div>
 								{/if}
-								{#if submitted && form.exerciseIds.length === 0}<div class="text-danger small mt-2">
-										At least one exercise must be selected.
-									</div>{/if}
+									{#if (submitted && form.exerciseIds.length === 0) || isFieldInvalid('exerciseIds')}
+										<div class="invalid-feedback d-block">
+											{getFieldError('exerciseIds') || 'At least one exercise must be selected'}
+										</div>
+									{/if}
 							</div>
 
 							<div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-2">
@@ -279,6 +414,14 @@
 </section>
 
 <style>
+	.exercise-filter-panel {
+		background: #23272f;
+		border: 1px solid rgba(255, 140, 0, 0.7);
+		box-shadow:
+			0 0 0 1px rgba(255, 140, 0, 0.12),
+			0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+	}
+
 	.btn-orange {
 		background: #ff8c00;
 		border-color: #ff8c00;
