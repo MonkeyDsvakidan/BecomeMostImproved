@@ -218,9 +218,9 @@
 
 			<div class="row g-3">
 				<div class="col-12">
-					<div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+					<div class="d-flex align-items-center gap-2 mb-2">
 						<div class="form-label text-light fw-semibold mb-0">Categories</div>
-						<span class="text-secondary small">Pick one or more tags</span>
+						<span class="text-secondary small ms-2">Pick one or more tags</span>
 					</div>
 					<div class="d-flex flex-wrap gap-2">
 						{#each availableCategories as category (category)}

@@ -155,10 +155,21 @@ export async function load() {
 			};
 		});
 
+		const favoriteWorkouts = plainWorkouts
+			.filter((w) => Boolean(w.isFavorite))
+			.sort((a, b) => {
+				// prefer recently favorited, fallback to name
+				if (a.favoritedAt && b.favoritedAt) return new Date(b.favoritedAt) - new Date(a.favoritedAt);
+				if (a.favoritedAt) return -1;
+				if (b.favoritedAt) return 1;
+				return a.name.localeCompare(b.name);
+			})
+			.slice(0, 6);
+
 		return {
 			workouts: plainWorkouts,
 			exercises: plainExercises,
-			featuredWorkouts: plainWorkouts.slice(0, 3),
+			favoriteWorkouts,
 			recentActivity: plainSessions.slice(0, 5).map(formatRecentSession),
 			stats: {
 				totalWorkouts: plainWorkouts.length,
@@ -191,7 +202,7 @@ export async function load() {
 		return {
 			workouts: [],
 			exercises: [],
-			featuredWorkouts: [],
+			favoriteWorkouts: [],
 			recentActivity: [],
 			stats: emptyStats()
 		};
@@ -220,5 +231,30 @@ export const actions = {
 			console.error('POST / deleteSession action error:', error);
 			return fail(500, { error: 'Failed to remove session from history' });
 		}
+	},
+	toggleFavorite: async ({ request }) => {
+		const form = await request.formData();
+		const workoutId = String(form.get('workoutId') ?? '').trim();
+
+		if (!isValidObjectId(workoutId)) return fail(400, { error: 'Invalid workout id' });
+
+		try {
+			const db = await connectToDatabase();
+			const _id = new ObjectId(workoutId);
+			const existing = await db.collection('workouts').findOne({ _id });
+			if (!existing) return fail(404, { error: 'Workout not found' });
+
+			const newValue = !Boolean(existing.isFavorite);
+			const update = { $set: { isFavorite: newValue } };
+			if (newValue) update.$set.favoritedAt = new Date();
+			else update.$unset = { favoritedAt: '' };
+
+			await db.collection('workouts').updateOne({ _id }, update);
+			return { success: true, isFavorite: newValue };
+		} catch (err) {
+			console.error('POST / toggleFavorite action error:', err);
+			return fail(500, { error: 'Failed to toggle favorite' });
+		}
 	}
 };
+

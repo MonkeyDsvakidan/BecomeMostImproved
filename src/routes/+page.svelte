@@ -5,7 +5,7 @@
 
 	$: workouts = data?.workouts ?? [];
 	$: exercises = data?.exercises ?? [];
-	$: featuredWorkouts = data?.featuredWorkouts ?? [];
+	$: favoriteWorkouts = data?.favoriteWorkouts ?? [];
 	$: recentActivity = data?.recentActivity ?? [];
 	$: totalWorkouts = workouts.length;
 	$: totalExercises = exercises.length;
@@ -81,11 +81,11 @@
 		</div>
 	</div>
 
-	{#if featuredWorkouts.length > 0}
+	{#if favoriteWorkouts.length > 0}
 		<div class="mb-4">
-			<h2 class="h4 fw-bold mb-3">Featured Workouts</h2>
+			<h2 class="h4 fw-bold mb-3">Favorite Workouts</h2>
 			<div class="row g-4">
-				{#each featuredWorkouts as workout (workout._id)}
+				{#each favoriteWorkouts as workout (workout._id)}
 					<div class="col-12 col-md-6 col-xl-4">
 						<article
 							class="card bg-dark text-light border border-secondary shadow-sm h-100 rounded-3"
@@ -119,6 +119,11 @@
 					</div>
 				{/each}
 			</div>
+		</div>
+	{:else}
+		<div class="mb-4">
+			<h2 class="h4 fw-bold mb-3">Favorite Workouts</h2>
+			<div class="text-secondary">No favorite workouts yet. Click the ⭐ icon on any workout to add it here.</div>
 		</div>
 	{/if}
 

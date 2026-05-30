@@ -20,6 +20,7 @@
 	let error = data?.error ?? '';
 	let searchQuery = '';
 	let searchInput;
+	let showOnlyFavorites = false;
 	const deleting = new SvelteSet();
 
 	const sortLabels = {
@@ -80,6 +81,10 @@
 		return (w.name || '').toLowerCase().includes(q);
 	});
 
+	$: if (showOnlyFavorites) {
+		visibleWorkouts = (visibleWorkouts || []).filter((w) => Boolean(w.isFavorite));
+	}
+
 	function buildHref(overrides = {}) {
 		const params = new URLSearchParams();
 		const nextSortMode = overrides.sortMode ?? sortMode;
@@ -98,6 +103,9 @@
 		const nextQuery = overrides.q ?? searchQuery;
 		if (nextQuery) params.set('q', nextQuery);
 
+		const nextFavorite = overrides.favorite ?? (showOnlyFavorites ? '1' : '');
+		if (nextFavorite) params.set('favorite', nextFavorite);
+
 		const query = params.toString();
 		return query ? `?${query}` : '';
 	}
@@ -108,6 +116,11 @@
 
 	function navigateWith(overrides = {}) {
 		goto(buildHref(overrides));
+	}
+
+	function toggleShowOnlyFavorites() {
+		showOnlyFavorites = !showOnlyFavorites;
+		navigateWith({ favorite: showOnlyFavorites ? '1' : '' });
 	}
 
 	function clearAllFilters() {
@@ -187,6 +200,9 @@
 					Refresh
 				{/if}
 			</button>
+			<button class={`btn btn-sm ${showOnlyFavorites ? 'btn-primary btn-orange' : 'btn-outline-light'}`} on:click={toggleShowOnlyFavorites} title="Show only favorites">
+				{#if showOnlyFavorites}★{:else}☆{/if}
+			</button>
 			<a href={resolve('/workouts/new')} class="btn btn-primary btn-orange">Create New Workout</a>
 		</div>
 	</div>
@@ -212,9 +228,9 @@
 
 			<div class="row g-3">
 				<div class="col-12">
-					<div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+					<div class="d-flex align-items-center gap-2 mb-2">
 						<div class="form-label text-light fw-semibold mb-0">Categories</div>
-						<span class="text-secondary small">Pick one or more tags</span>
+						<span class="text-secondary small ms-2">Pick one or more tags</span>
 					</div>
 					<div class="d-flex flex-wrap gap-2">
 						{#each availableCategories as category (category)}

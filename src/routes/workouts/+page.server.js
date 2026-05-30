@@ -139,3 +139,43 @@ export async function load({ url }) {
 		};
 	}
 }
+
+import { fail } from '@sveltejs/kit';
+import { ObjectId } from 'mongodb';
+
+function isValidObjectId(id) {
+	if (!id || typeof id !== 'string') return false;
+	try {
+		new ObjectId(id);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+export const actions = {
+	toggleFavorite: async ({ request }) => {
+		const form = await request.formData();
+		const workoutId = String(form.get('workoutId') ?? '').trim();
+
+		if (!isValidObjectId(workoutId)) return fail(400, { error: 'Invalid workout id' });
+
+		try {
+			const db = await connectToDatabase();
+			const _id = new ObjectId(workoutId);
+			const existing = await db.collection('workouts').findOne({ _id });
+			if (!existing) return fail(404, { error: 'Workout not found' });
+
+			const newValue = !Boolean(existing.isFavorite);
+			const update = { $set: { isFavorite: newValue } };
+			if (newValue) update.$set.favoritedAt = new Date();
+			else update.$unset = { favoritedAt: '' };
+
+			await db.collection('workouts').updateOne({ _id }, update);
+			return { success: true, isFavorite: newValue };
+		} catch (err) {
+			console.error('POST /workouts toggleFavorite action error:', err);
+			return fail(500, { error: 'Failed to toggle favorite' });
+		}
+	}
+};
