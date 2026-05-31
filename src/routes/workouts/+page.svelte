@@ -75,15 +75,13 @@
 		}
 	} catch {}
 
-	$: visibleWorkouts = (workouts || []).filter((w) => {
-		if (!searchQuery) return true;
-		const q = String(searchQuery).toLowerCase();
-		return (w.name || '').toLowerCase().includes(q);
-	});
-
-	$: if (showOnlyFavorites) {
-		visibleWorkouts = (visibleWorkouts || []).filter((w) => Boolean(w.isFavorite));
-	}
+	$: visibleWorkouts = (workouts || [])
+		.filter((w) => {
+			if (!searchQuery) return true;
+			const q = String(searchQuery).toLowerCase();
+			return (w.name || '').toLowerCase().includes(q);
+		})
+		.filter((w) => !showOnlyFavorites || Boolean(w.isFavorite));
 
 	function buildHref(overrides = {}) {
 		const params = new URLSearchParams();
@@ -123,9 +121,7 @@
 		navigateWith({ favorite: showOnlyFavorites ? '1' : '' });
 	}
 
-	function clearAllFilters() {
-		navigateWith({ categories: [], exerciseCount: '', duration: '' });
-	}
+	// `clearAllFilters` is unused; use explicit `buildHref` links in template instead
 
 	function toggleCategory(category) {
 		const nextCategories = selectedCategories.includes(category)

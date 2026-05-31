@@ -111,14 +111,7 @@
 		goto(buildHref(overrides));
 	}
 
-	function clearAllFilters() {
-		navigateWith({ categories: [], level: '', duration: '' });
-	}
-
-	function removeFilter(filterKey) {
-		const overrides = { [filterKey]: '' };
-		navigateWith(overrides);
-	}
+	// `clearAllFilters` and `removeFilter` are unused; template uses explicit hrefs
 
 	function toggleCategory(category) {
 		const nextCategories = selectedCategories.includes(category)

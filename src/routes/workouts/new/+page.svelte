@@ -88,7 +88,7 @@
 	$: normalizedWorkoutCategories = form.categories
 		.map((cat) => cat.trim().toLowerCase())
 		.filter(Boolean);
-	$: activeExerciseFilter = normalizedWorkoutCategories[0] ?? '';
+	// activeExerciseFilter unused — removed to clean up unused reactive value
 	$: filteredExercises =
 		showAllExercises || normalizedWorkoutCategories.length === 0
 			? allExercises
