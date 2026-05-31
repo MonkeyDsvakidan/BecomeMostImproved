@@ -9,13 +9,13 @@
 
 	export let data;
 
-	let exercises = [];
-	let availableCategories = [];
-	let sortMode = 'date';
-	let sortDirection = 'desc';
-	let selectedCategories = [];
-	let selectedLevel = '';
-	let selectedDuration = '';
+	let exercises = data?.exercises ?? [];
+	let availableCategories = data?.availableCategories ?? [];
+	let sortMode = data?.sortMode ?? 'date';
+	let sortDirection = data?.sortDirection ?? (sortMode === 'level' ? 'asc' : 'desc');
+	let selectedCategories = data?.selectedCategories ?? [];
+	let selectedLevel = data?.selectedLevel ?? '';
+	let selectedDuration = data?.selectedDuration ?? '';
 	let loading = false;
 	let error = data?.error ?? '';
 	let searchQuery = '';
@@ -44,16 +44,7 @@
 		desc: 'Descending'
 	};
 
-	$: {
-		exercises = data?.exercises ?? [];
-		availableCategories = data?.availableCategories ?? [];
-		sortMode = data?.sortMode ?? 'date';
-		sortDirection = data?.sortDirection ?? (sortMode === 'level' ? 'asc' : 'desc');
-		selectedCategories = data?.selectedCategories ?? [];
-		selectedLevel = data?.selectedLevel ?? '';
-		selectedDuration = data?.selectedDuration ?? '';
-		error = data?.error ?? '';
-	}
+	// initial data is taken from `data` on first render; updates are driven by navigation
 
 	// initialize searchQuery from URL (once)
 	onMount(() => {

@@ -9,13 +9,13 @@
 
 	export let data;
 
-	let workouts = [];
-	let availableCategories = [];
-	let sortMode = 'date';
-	let sortDirection = 'desc';
-	let selectedCategories = [];
-	let selectedExerciseCount = '';
-	let selectedDuration = '';
+	let workouts = data?.workouts ?? [];
+	let availableCategories = data?.availableCategories ?? [];
+	let sortMode = data?.sortMode ?? 'date';
+	let sortDirection = data?.sortDirection ?? (sortMode === 'level' ? 'asc' : 'desc');
+	let selectedCategories = data?.selectedCategories ?? [];
+	let selectedExerciseCount = data?.selectedExerciseCount ?? '';
+	let selectedDuration = data?.selectedDuration ?? '';
 	let loading = false;
 	let error = data?.error ?? '';
 	let searchQuery = '';
@@ -45,16 +45,7 @@
 		gt40: '> 40 Min'
 	};
 
-	$: {
-		workouts = data?.workouts ?? [];
-		availableCategories = data?.availableCategories ?? [];
-		sortMode = data?.sortMode ?? 'date';
-		sortDirection = data?.sortDirection ?? (sortMode === 'level' ? 'asc' : 'desc');
-		selectedCategories = data?.selectedCategories ?? [];
-		selectedExerciseCount = data?.selectedExerciseCount ?? '';
-		selectedDuration = data?.selectedDuration ?? '';
-		error = data?.error ?? '';
-	}
+	// initial data is taken from `data` on first render; updates are driven by navigation
 
 	// init searchQuery from URL
 	onMount(() => {
