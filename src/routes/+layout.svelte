@@ -26,7 +26,7 @@
 			--bs-body-color: #f5f5f5;
 			--bs-secondary: #ff964f; /* accent secondary color */
 			--bs-secondary-color: #ff964f;
-			--bs-secondary-rgb: 255,150,79;
+			--bs-secondary-rgb: 255, 150, 79;
 			--bs-border-color: rgba(255, 255, 255, 0.08);
 		}
 
@@ -96,7 +96,15 @@
 			class="navbar-brand fw-bold navbar-brand-gradient d-flex align-items-center gap-2"
 			href={resolve('/')}
 		>
-			<img src="/icon.svg" alt="" aria-hidden="true" class="brand-icon" width="64" height="64" decoding="async" />
+			<img
+				src="/icon.svg"
+				alt=""
+				aria-hidden="true"
+				class="brand-icon"
+				width="64"
+				height="64"
+				decoding="async"
+			/>
 			<span>BecomeMostImproved</span>
 		</a>
 		<button

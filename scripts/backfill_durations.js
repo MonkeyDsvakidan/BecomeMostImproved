@@ -17,7 +17,7 @@ async function main() {
 			const parsed = new URL(uri);
 			const pathname = parsed.pathname || '';
 			if (pathname && pathname !== '/') dbName = pathname.replace(/^\//, '');
-		} catch (e) {
+		} catch {
 			// ignore
 		}
 
@@ -27,16 +27,23 @@ async function main() {
 
 		let updated = 0;
 		for (const w of workouts) {
-			const exerciseIds = (w.exerciseIds || []).map((id) => (typeof id === 'string' ? new ObjectId(id) : id));
+			const exerciseIds = (w.exerciseIds || []).map((id) =>
+				typeof id === 'string' ? new ObjectId(id) : id
+			);
 			if (exerciseIds.length === 0) continue;
-			const exercises = await db.collection('exercises').find({ _id: { $in: exerciseIds } }).toArray();
+			const exercises = await db
+				.collection('exercises')
+				.find({ _id: { $in: exerciseIds } })
+				.toArray();
 			const sum = exercises.reduce((s, ex) => s + (Number(ex.duration) || 0), 0);
 			// If you want pauses, set pausePerExercise here (minutes)
 			const pausePerExercise = 0;
 			const finalDuration = sum + pausePerExercise * exerciseIds.length;
 
 			if (w.duration !== finalDuration) {
-				await db.collection('workouts').updateOne({ _id: w._id }, { $set: { duration: finalDuration, updatedAt: new Date() } });
+				await db
+					.collection('workouts')
+					.updateOne({ _id: w._id }, { $set: { duration: finalDuration, updatedAt: new Date() } });
 				updated++;
 				console.log(`Updated workout ${w._id} (${w.name}) from ${w.duration} -> ${finalDuration}`);
 			}

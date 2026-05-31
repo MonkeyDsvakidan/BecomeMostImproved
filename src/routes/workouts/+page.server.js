@@ -23,7 +23,14 @@ function getFilterValue(url, key) {
 }
 
 function getFilterValues(url, key) {
-	return [...new Set(url.searchParams.getAll(key).map((value) => String(value).trim()).filter(Boolean))];
+	return [
+		...new Set(
+			url.searchParams
+				.getAll(key)
+				.map((value) => String(value).trim())
+				.filter(Boolean)
+		)
+	];
 }
 
 function buildPipeline(sortMode, sortDirection, filters) {
@@ -91,7 +98,6 @@ function buildPipeline(sortMode, sortDirection, filters) {
 
 	return pipeline;
 }
-
 
 export async function load({ url }) {
 	const sortMode = getSortMode(url);
@@ -166,7 +172,7 @@ export const actions = {
 			const existing = await db.collection('workouts').findOne({ _id });
 			if (!existing) return fail(404, { error: 'Workout not found' });
 
-			const newValue = !Boolean(existing.isFavorite);
+			const newValue = !existing.isFavorite;
 			const update = { $set: { isFavorite: newValue } };
 			if (newValue) update.$set.favoritedAt = new Date();
 			else update.$unset = { favoritedAt: '' };

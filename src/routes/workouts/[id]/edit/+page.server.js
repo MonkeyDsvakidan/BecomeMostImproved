@@ -97,7 +97,10 @@ export const actions = {
 		const level = String(formData.get('level') ?? '').trim();
 		const durationResult = parseNonNegativeNumber(formData.get('duration'), 'Duration');
 		const autoDuration = String(formData.get('autoDuration') ?? 'true') === 'true';
-		const pausePerExerciseResult = parseNonNegativeNumber(formData.get('pausePerExercise') ?? '0', 'Pause per exercise');
+		const pausePerExerciseResult = parseNonNegativeNumber(
+			formData.get('pausePerExercise') ?? '0',
+			'Pause per exercise'
+		);
 		const exerciseIds = formData
 			.getAll('exerciseIds')
 			.map((item) => String(item).trim())

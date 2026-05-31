@@ -32,17 +32,21 @@
 
 	$: selectedExerciseObjects = form.exerciseIds
 		? form.exerciseIds
-			.map((id) => allExercises.find((e) => String(e._id) === String(id)))
-			.filter(Boolean)
+				.map((id) => allExercises.find((e) => String(e._id) === String(id)))
+				.filter(Boolean)
 		: [];
 
-	$: calculatedDuration = selectedExerciseObjects.reduce((sum, ex) => sum + (Number(ex.duration) || 0), 0) + (pausePerExercise ? pausePerExercise * selectedExerciseObjects.length : 0);
+	$: calculatedDuration =
+		selectedExerciseObjects.reduce((sum, ex) => sum + (Number(ex.duration) || 0), 0) +
+		(pausePerExercise ? pausePerExercise * selectedExerciseObjects.length : 0);
 
 	$: if (autoDuration) {
 		form.duration = calculatedDuration;
 	}
 
-	$: missingDurations = selectedExerciseObjects.some((ex) => ex.duration == null || ex.duration === '');
+	$: missingDurations = selectedExerciseObjects.some(
+		(ex) => ex.duration == null || ex.duration === ''
+	);
 
 	$: knownExerciseCategories = Array.from(
 		new Set(
@@ -53,7 +57,9 @@
 	);
 
 	function normalizeCategoryValue(value) {
-		return String(value ?? '').trim().toLowerCase();
+		return String(value ?? '')
+			.trim()
+			.toLowerCase();
 	}
 
 	function findCanonicalCategory(rawValue) {
@@ -78,7 +84,9 @@
 		return trimmed;
 	}
 
-	$: normalizedWorkoutCategories = form.categories.map((cat) => cat.trim().toLowerCase()).filter(Boolean);
+	$: normalizedWorkoutCategories = form.categories
+		.map((cat) => cat.trim().toLowerCase())
+		.filter(Boolean);
 	$: activeFilterLabel = form.categories.length > 0 ? form.categories.join(', ') : '';
 	$: filterFeedbackLabel =
 		normalizedWorkoutCategories.length === 1
@@ -88,13 +96,16 @@
 		showAllExercises || normalizedWorkoutCategories.length === 0
 			? allExercises
 			: allExercises.filter((exercise) => {
-				const exerciseCategories = (exercise.category ?? []).map((cat) => String(cat).trim().toLowerCase());
-				return exerciseCategories.some((category) =>
-					normalizedWorkoutCategories.some(
-						(workoutCategory) => category.includes(workoutCategory) || workoutCategory.includes(category)
-					)
-				);
-			});
+					const exerciseCategories = (exercise.category ?? []).map((cat) =>
+						String(cat).trim().toLowerCase()
+					);
+					return exerciseCategories.some((category) =>
+						normalizedWorkoutCategories.some(
+							(workoutCategory) =>
+								category.includes(workoutCategory) || workoutCategory.includes(category)
+						)
+					);
+				});
 
 	const fieldErrorMatchers = {
 		name: ['name is required'],
@@ -261,12 +272,20 @@
 										{#if autoDuration}
 											<span class="badge bg-success text-dark">Auto-calculated</span>
 										{:else}
-											<button type="button" class="btn btn-sm btn-outline-secondary" on:click={() => (autoDuration = true)} title="Recalculate from selected exercises">Use auto</button>
+											<button
+												type="button"
+												class="btn btn-sm btn-outline-secondary"
+												on:click={() => (autoDuration = true)}
+												title="Recalculate from selected exercises">Use auto</button
+											>
 										{/if}
 									</div>
 									<input type="hidden" name="autoDuration" value={autoDuration} />
 									<input type="hidden" name="pausePerExercise" value={pausePerExercise} />
-									<div class="small text-secondary mt-1">Total Duration: {calculatedDuration} minutes {#if missingDurations} — Some selected exercises have no duration (assumed 0){/if}</div>
+									<div class="small text-secondary mt-1">
+										Total Duration: {calculatedDuration} minutes {#if missingDurations}
+											— Some selected exercises have no duration (assumed 0){/if}
+									</div>
 									{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
 										<div class="invalid-feedback">
 											{getFieldError('duration') || 'Duration must be a non-negative number'}
@@ -344,47 +363,59 @@
 									<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 								</div>
 
-									{#if normalizedWorkoutCategories.length > 0}
-										<div class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3">
-											<div class="text-light small fw-medium">
-												{#if showAllExercises}
-													Showing all exercises
-												{:else}
-													Showing {filteredExercises.length} exercises matching {filterFeedbackLabel}
-												{/if}
-											</div>
-											{#if !showAllExercises && activeFilterLabel}
-												<div class="text-secondary small">Active category filter: {activeFilterLabel}</div>
+								{#if normalizedWorkoutCategories.length > 0}
+									<div
+										class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3"
+									>
+										<div class="text-light small fw-medium">
+											{#if showAllExercises}
+												Showing all exercises
+											{:else}
+												Showing {filteredExercises.length} exercises matching {filterFeedbackLabel}
 											{/if}
-											<button
-												type="button"
-												class="btn btn-sm btn-outline-warning"
-												on:click={showAllExercisesList}
-												disabled={showAllExercises}
-											>
-												Show all exercises
-											</button>
 										</div>
-									{/if}
+										{#if !showAllExercises && activeFilterLabel}
+											<div class="text-secondary small">
+												Active category filter: {activeFilterLabel}
+											</div>
+										{/if}
+										<button
+											type="button"
+											class="btn btn-sm btn-outline-warning"
+											on:click={showAllExercisesList}
+											disabled={showAllExercises}
+										>
+											Show all exercises
+										</button>
+									</div>
+								{/if}
 
-									{#if exercisesLoading}
-										<div class="text-center py-4">
-											<div class="spinner-border text-primary" role="status" aria-label="Loading exercises"></div>
-											<p class="mt-3 text-secondary mb-0">Loading exercises…</p>
-										</div>
-									{:else if allExercises.length === 0}
+								{#if exercisesLoading}
+									<div class="text-center py-4">
+										<div
+											class="spinner-border text-primary"
+											role="status"
+											aria-label="Loading exercises"
+										></div>
+										<p class="mt-3 text-secondary mb-0">Loading exercises…</p>
+									</div>
+								{:else if allExercises.length === 0}
 									<div class="alert alert-warning rounded-3 mb-0">
 										No exercises available. <a href={resolve('/exercises/new')} class="alert-link"
 											>Create one</a
 										>.
 									</div>
-									{:else if filteredExercises.length === 0}
-										<div class="alert alert-info rounded-3 mb-0">
-											No exercises match {filterFeedbackLabel}.
-											<button type="button" class="btn btn-link p-0 ms-1 align-baseline" on:click={showAllExercisesList}>
-												Show all exercises
-											</button>
-										</div>
+								{:else if filteredExercises.length === 0}
+									<div class="alert alert-info rounded-3 mb-0">
+										No exercises match {filterFeedbackLabel}.
+										<button
+											type="button"
+											class="btn btn-link p-0 ms-1 align-baseline"
+											on:click={showAllExercisesList}
+										>
+											Show all exercises
+										</button>
+									</div>
 								{:else}
 									<div
 										class={`list-group list-group-flush rounded-3 border border-secondary overflow-hidden ${submitted && form.exerciseIds.length === 0 ? 'border-danger' : ''}`}
@@ -416,11 +447,11 @@
 										{/each}
 									</div>
 								{/if}
-									{#if (submitted && form.exerciseIds.length === 0) || isFieldInvalid('exerciseIds')}
-										<div class="invalid-feedback d-block">
-											{getFieldError('exerciseIds') || 'At least one exercise must be selected'}
-										</div>
-									{/if}
+								{#if (submitted && form.exerciseIds.length === 0) || isFieldInvalid('exerciseIds')}
+									<div class="invalid-feedback d-block">
+										{getFieldError('exerciseIds') || 'At least one exercise must be selected'}
+									</div>
+								{/if}
 							</div>
 
 							<div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-2">

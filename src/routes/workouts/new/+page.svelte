@@ -31,14 +31,13 @@
 
 	$: selectedExerciseObjects = form.exerciseIds
 		? form.exerciseIds
-			.map((id) => allExercises.find((e) => String(e._id) === String(id)))
-			.filter(Boolean)
+				.map((id) => allExercises.find((e) => String(e._id) === String(id)))
+				.filter(Boolean)
 		: [];
 
-	$: calculatedDuration = selectedExerciseObjects.reduce(
-		(sum, ex) => sum + (Number(ex.duration) || 0),
-		0
-	) + (pausePerExercise ? pausePerExercise * selectedExerciseObjects.length : 0);
+	$: calculatedDuration =
+		selectedExerciseObjects.reduce((sum, ex) => sum + (Number(ex.duration) || 0), 0) +
+		(pausePerExercise ? pausePerExercise * selectedExerciseObjects.length : 0);
 
 	// Keep form.duration in sync when autoDuration is enabled
 	$: if (autoDuration) {
@@ -46,7 +45,9 @@
 	}
 
 	// Warning flag when any selected exercise lacks duration
-	$: missingDurations = selectedExerciseObjects.some((ex) => ex.duration == null || ex.duration === '');
+	$: missingDurations = selectedExerciseObjects.some(
+		(ex) => ex.duration == null || ex.duration === ''
+	);
 
 	$: knownExerciseCategories = Array.from(
 		new Set(
@@ -57,7 +58,9 @@
 	);
 
 	function normalizeCategoryValue(value) {
-		return String(value ?? '').trim().toLowerCase();
+		return String(value ?? '')
+			.trim()
+			.toLowerCase();
 	}
 
 	function findCanonicalCategory(rawValue) {
@@ -82,19 +85,24 @@
 		return trimmed;
 	}
 
-	$: normalizedWorkoutCategories = form.categories.map((cat) => cat.trim().toLowerCase()).filter(Boolean);
+	$: normalizedWorkoutCategories = form.categories
+		.map((cat) => cat.trim().toLowerCase())
+		.filter(Boolean);
 	$: activeExerciseFilter = normalizedWorkoutCategories[0] ?? '';
 	$: filteredExercises =
 		showAllExercises || normalizedWorkoutCategories.length === 0
 			? allExercises
 			: allExercises.filter((exercise) => {
-				const exerciseCategories = (exercise.category ?? []).map((cat) => String(cat).trim().toLowerCase());
-				return exerciseCategories.some((category) =>
-					normalizedWorkoutCategories.some(
-						(workoutCategory) => category.includes(workoutCategory) || workoutCategory.includes(category)
-					)
-				);
-			});
+					const exerciseCategories = (exercise.category ?? []).map((cat) =>
+						String(cat).trim().toLowerCase()
+					);
+					return exerciseCategories.some((category) =>
+						normalizedWorkoutCategories.some(
+							(workoutCategory) =>
+								category.includes(workoutCategory) || workoutCategory.includes(category)
+						)
+					);
+				});
 	$: filterFeedbackLabel =
 		normalizedWorkoutCategories.length === 1
 			? `category '${form.categories[0]}'`
@@ -208,7 +216,6 @@
 					</div>
 
 					<form method="POST" use:enhance={enhanceSubmit} class="d-flex flex-column gap-4">
-
 						<div>
 							<label class="form-label text-light fw-semibold" for="name"
 								>Workout Name <span style="color: red;">*</span></label
@@ -233,29 +240,34 @@
 								<label class="form-label text-light fw-semibold" for="duration"
 									>Duration (minutes) <span style="color: red;">*</span></label
 								>
-									<div class="d-flex align-items-center gap-2">
-										<input
-											id="duration"
-											name="duration"
-											class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
-											type="number"
-											bind:value={form.duration}
-											min="0"
-											required
-											on:input={() => (autoDuration = false)}
-										/>
-										{#if autoDuration}
-											<span class="badge bg-success text-dark">Auto-calculated</span>
-										{:else}
-											<button type="button" class="btn btn-sm btn-outline-secondary" on:click={() => (autoDuration = true)} title="Recalculate from selected exercises">Use auto</button>
-										{/if}
-									</div>
-									<div class="small text-secondary mt-1">
-										Total Duration: {calculatedDuration} minutes
-										{#if missingDurations}
-											 — Some selected exercises have no duration (assumed 0)
-										{/if}
-									</div>
+								<div class="d-flex align-items-center gap-2">
+									<input
+										id="duration"
+										name="duration"
+										class={`form-control bg-dark border-secondary control-input ${(submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration') ? 'is-invalid' : ''}`}
+										type="number"
+										bind:value={form.duration}
+										min="0"
+										required
+										on:input={() => (autoDuration = false)}
+									/>
+									{#if autoDuration}
+										<span class="badge bg-success text-dark">Auto-calculated</span>
+									{:else}
+										<button
+											type="button"
+											class="btn btn-sm btn-outline-secondary"
+											on:click={() => (autoDuration = true)}
+											title="Recalculate from selected exercises">Use auto</button
+										>
+									{/if}
+								</div>
+								<div class="small text-secondary mt-1">
+									Total Duration: {calculatedDuration} minutes
+									{#if missingDurations}
+										— Some selected exercises have no duration (assumed 0)
+									{/if}
+								</div>
 								{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
 									<div class="invalid-feedback">
 										{getFieldError('duration') || 'Duration must be a non-negative number'}
@@ -263,7 +275,9 @@
 								{/if}
 							</div>
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="level"
+									>Level <span style="color: red;">*</span></label
+								>
 								<select
 									id="level"
 									name="level"
@@ -282,7 +296,8 @@
 						</div>
 
 						<div>
-							<label class="form-label text-light fw-semibold" for="categoryInput">Categories <span style="color: red;">*</span></label
+							<label class="form-label text-light fw-semibold" for="categoryInput"
+								>Categories <span style="color: red;">*</span></label
 							>
 							<div class="input-group">
 								<input
@@ -324,12 +339,16 @@
 
 						<div>
 							<div class="d-flex align-items-center justify-content-between mb-2">
-								<span class="form-label text-light fw-semibold mb-0">Select Exercises <span style="color: red;">*</span></span>
+								<span class="form-label text-light fw-semibold mb-0"
+									>Select Exercises <span style="color: red;">*</span></span
+								>
 								<span class="text-secondary small">{form.exerciseIds.length} selected</span>
 							</div>
 
 							{#if normalizedWorkoutCategories.length > 0}
-								<div class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3">
+								<div
+									class="exercise-filter-panel d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 p-3 rounded-3"
+								>
 									<div class="text-light small fw-medium">
 										{#if showAllExercises}
 											Showing all exercises
@@ -338,7 +357,9 @@
 										{/if}
 									</div>
 									{#if !showAllExercises && activeFilterLabel}
-										<div class="text-secondary small">Active category filter: {activeFilterLabel}</div>
+										<div class="text-secondary small">
+											Active category filter: {activeFilterLabel}
+										</div>
 									{/if}
 									<button
 										type="button"
@@ -369,7 +390,11 @@
 							{:else if filteredExercises.length === 0}
 								<div class="alert alert-info rounded-3 mb-0">
 									No exercises match {filterFeedbackLabel}.
-									<button type="button" class="btn btn-link p-0 ms-1 align-baseline" on:click={showAllExercisesList}>
+									<button
+										type="button"
+										class="btn btn-link p-0 ms-1 align-baseline"
+										on:click={showAllExercisesList}
+									>
 										Show all exercises
 									</button>
 								</div>

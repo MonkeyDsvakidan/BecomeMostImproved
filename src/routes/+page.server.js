@@ -159,7 +159,8 @@ export async function load() {
 			.filter((w) => Boolean(w.isFavorite))
 			.sort((a, b) => {
 				// prefer recently favorited, fallback to name
-				if (a.favoritedAt && b.favoritedAt) return new Date(b.favoritedAt) - new Date(a.favoritedAt);
+				if (a.favoritedAt && b.favoritedAt)
+					return new Date(b.favoritedAt) - new Date(a.favoritedAt);
 				if (a.favoritedAt) return -1;
 				if (b.favoritedAt) return 1;
 				return a.name.localeCompare(b.name);
@@ -244,7 +245,7 @@ export const actions = {
 			const existing = await db.collection('workouts').findOne({ _id });
 			if (!existing) return fail(404, { error: 'Workout not found' });
 
-			const newValue = !Boolean(existing.isFavorite);
+			const newValue = !existing.isFavorite;
 			const update = { $set: { isFavorite: newValue } };
 			if (newValue) update.$set.favoritedAt = new Date();
 			else update.$unset = { favoritedAt: '' };
@@ -257,4 +258,3 @@ export const actions = {
 		}
 	}
 };
-

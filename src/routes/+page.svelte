@@ -47,27 +47,48 @@
 		<div
 			class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-center gap-2 gap-md-3"
 		>
-			<img src="/icon.svg" alt="" aria-hidden="true" class="hero-icon" width="112" height="112" decoding="async" fetchpriority="high" />
+			<img
+				src="/icon.svg"
+				alt=""
+				aria-hidden="true"
+				class="hero-icon"
+				width="112"
+				height="112"
+				decoding="async"
+				fetchpriority="high"
+			/>
 			<div class="text-center text-md-start flex-grow-1">
 				<h1 class="display-5 fw-bold mb-2">Welcome to BallToTheTop</h1>
 				<div class="d-flex flex-wrap gap-3 mt-3">
 					{#if totalWorkouts > 3}
-						<a href={resolve('/workouts')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+						<a
+							href={resolve('/workouts')}
+							class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3"
+						>
 							<div class="display-6 mb-1">🎯</div>
 							<div class="fw-semibold">View All Workouts</div>
 						</a>
 					{/if}
 					{#if totalExercises > 0}
-						<a href={resolve('/exercises')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+						<a
+							href={resolve('/exercises')}
+							class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3"
+						>
 							<div class="display-6 mb-1">📋</div>
 							<div class="fw-semibold">Browse Exercises</div>
 						</a>
 					{/if}
-					<a href={resolve('/workouts/new')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+					<a
+						href={resolve('/workouts/new')}
+						class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3"
+					>
 						<div class="display-6 mb-1">➕</div>
 						<div class="fw-semibold">Create Workout</div>
 					</a>
-					<a href={resolve('/exercises/new')} class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3">
+					<a
+						href={resolve('/exercises/new')}
+						class="card action-card text-decoration-none text-center text-light bg-dark border-secondary rounded-3 p-3"
+					>
 						<div class="display-6 mb-1">✏️</div>
 						<div class="fw-semibold">Create Exercise</div>
 					</a>
@@ -118,7 +139,9 @@
 	{:else}
 		<div class="mb-4">
 			<h2 class="h4 fw-bold mb-3">Favorite Workouts</h2>
-			<div class="text-secondary">No favorite workouts yet. Click the ⭐ icon on any workout to add it here.</div>
+			<div class="text-secondary">
+				No favorite workouts yet. Click the ⭐ icon on any workout to add it here.
+			</div>
 		</div>
 	{/if}
 
@@ -129,7 +152,9 @@
 				{#each recentActivity as session (session._id)}
 					<div class="col-12">
 						<div class="card bg-dark border-secondary shadow-sm rounded-3">
-							<div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+							<div
+								class="card-body d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center"
+							>
 								<div>
 									<h3 class="h6 fw-bold mb-1 text-light">{session.workoutName}</h3>
 									<div class="text-secondary small">
@@ -184,7 +209,12 @@
 					<button type="button" class="btn btn-outline-light" on:click={closeDeleteSession}>
 						Cancel
 					</button>
-					<form method="POST" action="?/deleteSession" use:enhance={handleDeleteSessionSubmit} bind:this={deleteForm}>
+					<form
+						method="POST"
+						action="?/deleteSession"
+						use:enhance={handleDeleteSessionSubmit}
+						bind:this={deleteForm}
+					>
 						<input type="hidden" name="sessionId" value={deletingSession._id} />
 						<button type="submit" class="btn btn-danger">Remove</button>
 					</form>
@@ -254,5 +284,4 @@
 		border-color: #ff9d1f;
 		color: #111111;
 	}
-
 </style>

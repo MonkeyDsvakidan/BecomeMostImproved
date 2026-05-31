@@ -133,7 +133,9 @@
 							{/if}
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="name">Exercise Name <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="name"
+									>Exercise Name <span style="color: red;">*</span></label
+								>
 								<input
 									id="name"
 									name="name"
@@ -150,7 +152,9 @@
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="categoryInput">Categories <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="categoryInput"
+									>Categories <span style="color: red;">*</span></label
+								>
 								<div class="input-group">
 									<input
 										id="categoryInput"
@@ -171,7 +175,9 @@
 									<div class="d-flex flex-wrap gap-2 mt-3">
 										{#each form.categories as cat, index (cat + index)}
 											<input type="hidden" name="categories" value={cat} />
-											<span class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2">
+											<span
+												class="badge rounded-pill bg-secondary text-light d-inline-flex align-items-center gap-2 px-3 py-2"
+											>
 												{cat}
 												<button
 													type="button"
@@ -187,7 +193,9 @@
 
 							<div class="row g-3">
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
+									<label class="form-label text-light fw-semibold" for="level"
+										>Level <span style="color: red;">*</span></label
+									>
 									<select
 										id="level"
 										name="level"
@@ -204,7 +212,9 @@
 									{/if}
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="sets">Sets <span style="color: red;">*</span></label>
+									<label class="form-label text-light fw-semibold" for="sets"
+										>Sets <span style="color: red;">*</span></label
+									>
 									<input
 										id="sets"
 										name="sets"
@@ -215,11 +225,15 @@
 										required
 									/>
 									{#if (submitted && (form.sets < 0 || isNaN(form.sets))) || isFieldInvalid('sets')}
-										<div class="invalid-feedback">{getFieldError('sets') || 'Sets must be a non-negative number'}</div>
+										<div class="invalid-feedback">
+											{getFieldError('sets') || 'Sets must be a non-negative number'}
+										</div>
 									{/if}
 								</div>
 								<div class="col-md-4">
-									<label class="form-label text-light fw-semibold" for="reps">Reps <span style="color: red;">*</span></label>
+									<label class="form-label text-light fw-semibold" for="reps"
+										>Reps <span style="color: red;">*</span></label
+									>
 									<input
 										id="reps"
 										name="reps"
@@ -230,13 +244,17 @@
 										required
 									/>
 									{#if (submitted && (form.reps < 0 || isNaN(form.reps))) || isFieldInvalid('reps')}
-										<div class="invalid-feedback">{getFieldError('reps') || 'Reps must be a non-negative number'}</div>
+										<div class="invalid-feedback">
+											{getFieldError('reps') || 'Reps must be a non-negative number'}
+										</div>
 									{/if}
 								</div>
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="description">Description (optional)</label>
+								<label class="form-label text-light fw-semibold" for="description"
+									>Description (optional)</label
+								>
 								<textarea
 									id="description"
 									name="description"
@@ -248,7 +266,9 @@
 							</div>
 
 							<div>
-								<label class="form-label text-light fw-semibold" for="duration">Duration (minutes) <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="duration"
+									>Duration (minutes) <span style="color: red;">*</span></label
+								>
 								<input
 									id="duration"
 									name="duration"
@@ -259,7 +279,9 @@
 									required
 								/>
 								{#if (submitted && (form.duration < 0 || isNaN(form.duration))) || isFieldInvalid('duration')}
-									<div class="invalid-feedback">{getFieldError('duration') || 'Duration must be a non-negative number'}</div>
+									<div class="invalid-feedback">
+										{getFieldError('duration') || 'Duration must be a non-negative number'}
+									</div>
 								{/if}
 							</div>
 

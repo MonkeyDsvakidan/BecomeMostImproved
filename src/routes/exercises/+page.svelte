@@ -175,16 +175,34 @@
 </script>
 
 <section class="container py-4">
-	<div class="page-header d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+	<div
+		class="page-header d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4"
+	>
 		<div class="page-header-copy">
 			<h1 class="display-6 fw-bold mb-1">Exercises</h1>
 			<p class="text-secondary mb-0">Browse, create, and manage your exercise library.</p>
 		</div>
-			<div class="d-flex gap-2 flex-wrap justify-content-xl-end align-items-center">
-				<div class="input-group me-2">
-					<input bind:this={searchInput} type="search" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Search exercises" bind:value={searchQuery} on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), navigateWith({ q: searchQuery }))} />
-					<button class="btn btn-sm btn-outline-light" type="button" on:click={() => { searchQuery = ''; navigateWith({ q: '' }); }} title="Clear search">×</button>
-				</div>
+		<div class="d-flex gap-2 flex-wrap justify-content-xl-end align-items-center">
+			<div class="input-group me-2">
+				<input
+					bind:this={searchInput}
+					type="search"
+					class="form-control form-control-sm bg-dark border-secondary text-white"
+					placeholder="Search exercises"
+					bind:value={searchQuery}
+					on:keydown={(e) =>
+						e.key === 'Enter' && (e.preventDefault(), navigateWith({ q: searchQuery }))}
+				/>
+				<button
+					class="btn btn-sm btn-outline-light"
+					type="button"
+					on:click={() => {
+						searchQuery = '';
+						navigateWith({ q: '' });
+					}}
+					title="Clear search">×</button
+				>
+			</div>
 			<button class="btn btn-outline-light" on:click={fetchExercises} disabled={loading}>
 				{#if loading}
 					<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
@@ -199,19 +217,42 @@
 
 	<div class="controls-panel rounded-4 p-3 p-md-4 mb-4">
 		<div class="d-flex flex-column gap-4">
-			<div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between">
+			<div
+				class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between"
+			>
 				<div class="d-flex flex-wrap align-items-center gap-2">
 					<span class="text-secondary small fw-semibold text-uppercase">Sort by:</span>
 					<div class="btn-group" role="group" aria-label="Sort exercises">
-						<a href={sortHref('date', sortDirection)} class={`btn btn-sm ${sortMode === 'date' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>{sortLabels.date}</a>
-						<a href={sortHref('level', sortDirection)} class={`btn btn-sm ${sortMode === 'level' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>{sortLabels.level}</a>
+						<a
+							href={sortHref('date', sortDirection)}
+							class={`btn btn-sm ${sortMode === 'date' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							>{sortLabels.date}</a
+						>
+						<a
+							href={sortHref('level', sortDirection)}
+							class={`btn btn-sm ${sortMode === 'level' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							>{sortLabels.level}</a
+						>
 					</div>
 					<div class="btn-group" role="group" aria-label="Sort direction">
-						<a href={sortHref(sortMode, 'asc')} class={`btn btn-sm ${sortDirection === 'asc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`} aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`} title={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`}>↑</a>
-						<a href={sortHref(sortMode, 'desc')} class={`btn btn-sm ${sortDirection === 'desc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`} aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`} title={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`}>↓</a>
+						<a
+							href={sortHref(sortMode, 'asc')}
+							class={`btn btn-sm ${sortDirection === 'asc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`}
+							title={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`}>↑</a
+						>
+						<a
+							href={sortHref(sortMode, 'desc')}
+							class={`btn btn-sm ${sortDirection === 'desc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`}
+							title={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`}>↓</a
+						>
 					</div>
 				</div>
-				<a href={buildHref({ categories: [], level: '', duration: '' })} class="btn btn-outline-warning">
+				<a
+					href={buildHref({ categories: [], level: '', duration: '' })}
+					class="btn btn-outline-warning"
+				>
 					Clear all filters
 				</a>
 			</div>
@@ -230,7 +271,9 @@
 								on:click={() => toggleCategory(category)}
 								aria-pressed={isCategorySelected(category)}
 								style:background-color={isCategorySelected(category) ? '#ff8c00' : 'transparent'}
-								style:border-color={isCategorySelected(category) ? '#ff8c00' : 'rgba(255, 255, 255, 0.35)'}
+								style:border-color={isCategorySelected(category)
+									? '#ff8c00'
+									: 'rgba(255, 255, 255, 0.35)'}
 								style:color={isCategorySelected(category) ? '#111111' : '#f1f3f5'}
 							>
 								{isCategorySelected(category) ? '✓ ' : ''}{category}
@@ -249,18 +292,34 @@
 				<div class="col-12 col-md-4 col-lg-3">
 					<div class="form-label text-light fw-semibold mb-2">Level</div>
 					<div class="d-flex flex-wrap gap-2">
-						<a href={buildHref({ level: '' })} class={`btn btn-sm ${selectedLevel === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>All</a>
+						<a
+							href={buildHref({ level: '' })}
+							class={`btn btn-sm ${selectedLevel === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							>All</a
+						>
 						{#each Object.entries(levelLabels) as [level, label]}
-							<a href={buildHref({ level })} class={`btn btn-sm ${selectedLevel === level ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>{label}</a>
+							<a
+								href={buildHref({ level })}
+								class={`btn btn-sm ${selectedLevel === level ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+								>{label}</a
+							>
 						{/each}
 					</div>
 				</div>
 				<div class="col-12 col-md-4 col-lg-4">
 					<div class="form-label text-light fw-semibold mb-2">Duration</div>
 					<div class="d-flex flex-wrap gap-2">
-						<a href={buildHref({ duration: '' })} class={`btn btn-sm ${selectedDuration === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>All</a>
+						<a
+							href={buildHref({ duration: '' })}
+							class={`btn btn-sm ${selectedDuration === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+							>All</a
+						>
 						{#each Object.entries(durationLabels) as [duration, label]}
-							<a href={buildHref({ duration })} class={`btn btn-sm ${selectedDuration === duration ? 'btn-primary btn-orange' : 'btn-outline-light'}`}>{label}</a>
+							<a
+								href={buildHref({ duration })}
+								class={`btn btn-sm ${selectedDuration === duration ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+								>{label}</a
+							>
 						{/each}
 					</div>
 				</div>
@@ -269,13 +328,22 @@
 			{#if hasActiveFilters()}
 				<div class="d-flex flex-wrap gap-2">
 					{#each selectedCategories as category (category)}
-						<a href={buildHref({ categories: selectedCategories.filter((value) => value !== category) })} class="filter-badge text-decoration-none">Category: {category} ×</a>
+						<a
+							href={buildHref({
+								categories: selectedCategories.filter((value) => value !== category)
+							})}
+							class="filter-badge text-decoration-none">Category: {category} ×</a
+						>
 					{/each}
 					{#if selectedLevel}
-						<a href={buildHref({ level: '' })} class="filter-badge text-decoration-none">Level: {selectedLevel} ×</a>
+						<a href={buildHref({ level: '' })} class="filter-badge text-decoration-none"
+							>Level: {selectedLevel} ×</a
+						>
 					{/if}
 					{#if selectedDuration}
-						<a href={buildHref({ duration: '' })} class="filter-badge text-decoration-none">Duration: {durationLabels[selectedDuration]} ×</a>
+						<a href={buildHref({ duration: '' })} class="filter-badge text-decoration-none"
+							>Duration: {durationLabels[selectedDuration]} ×</a
+						>
 					{/if}
 				</div>
 			{/if}
@@ -297,13 +365,13 @@
 			<a href={resolve('/exercises/new')} class="btn btn-primary btn-orange">Create Exercise</a>
 		</div>
 	{:else}
-			<div class="row g-4">
-				{#each visibleExercises as ex (ex._id)}
-					<div class="col-12 col-md-6 col-lg-4">
-						<ExerciseCard exercise={ex} onDelete={deleteExercise} />
-					</div>
-				{/each}
-			</div>
+		<div class="row g-4">
+			{#each visibleExercises as ex (ex._id)}
+				<div class="col-12 col-md-6 col-lg-4">
+					<ExerciseCard exercise={ex} onDelete={deleteExercise} />
+				</div>
+			{/each}
+		</div>
 	{/if}
 </section>
 

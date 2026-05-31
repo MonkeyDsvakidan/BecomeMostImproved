@@ -108,7 +108,6 @@
 					</div>
 
 					<form method="POST" use:enhance={enhanceSubmit} class="d-flex flex-column gap-4">
-
 						<div>
 							<label class="form-label text-light fw-semibold" for="name"
 								>Exercise Name <span style="color: red;">*</span></label
@@ -129,7 +128,8 @@
 						</div>
 
 						<div>
-							<label class="form-label text-light fw-semibold" for="categoryInput">Categories <span style="color: red;">*</span></label
+							<label class="form-label text-light fw-semibold" for="categoryInput"
+								>Categories <span style="color: red;">*</span></label
 							>
 							<div class="input-group">
 								<input
@@ -171,7 +171,9 @@
 
 						<div class="row g-3">
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="level">Level <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="level"
+									>Level <span style="color: red;">*</span></label
+								>
 								<select
 									id="level"
 									name="level"
@@ -188,7 +190,9 @@
 								{/if}
 							</div>
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="sets">Sets <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="sets"
+									>Sets <span style="color: red;">*</span></label
+								>
 								<input
 									id="sets"
 									name="sets"
@@ -205,7 +209,9 @@
 								{/if}
 							</div>
 							<div class="col-md-4">
-								<label class="form-label text-light fw-semibold" for="reps">Reps <span style="color: red;">*</span></label>
+								<label class="form-label text-light fw-semibold" for="reps"
+									>Reps <span style="color: red;">*</span></label
+								>
 								<input
 									id="reps"
 									name="reps"
@@ -230,7 +236,7 @@
 							<textarea
 								id="description"
 								name="description"
-									class="form-control bg-dark border-secondary text-input"
+								class="form-control bg-dark border-secondary text-input"
 								bind:value={form.description}
 								placeholder="Describe how to perform this exercise..."
 								style="height: 140px"

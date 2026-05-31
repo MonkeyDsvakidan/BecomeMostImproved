@@ -23,7 +23,14 @@ function getFilterValue(url, key) {
 }
 
 function getFilterValues(url, key) {
-	return [...new Set(url.searchParams.getAll(key).map((value) => String(value).trim()).filter(Boolean))];
+	return [
+		...new Set(
+			url.searchParams
+				.getAll(key)
+				.map((value) => String(value).trim())
+				.filter(Boolean)
+		)
+	];
 }
 
 async function getAvailableCategories(collection) {
@@ -32,8 +39,12 @@ async function getAvailableCategories(collection) {
 		collection.distinct('categories')
 	]);
 
-	return [...new Set([...singular, ...plural].flatMap((value) => (Array.isArray(value) ? value : [value])))].
-		map((category) => String(category).trim())
+	return [
+		...new Set(
+			[...singular, ...plural].flatMap((value) => (Array.isArray(value) ? value : [value]))
+		)
+	]
+		.map((category) => String(category).trim())
 		.filter(Boolean)
 		.sort((a, b) => a.localeCompare(b));
 }
@@ -60,7 +71,10 @@ function buildPipeline(sortMode, sortDirection, filters) {
 
 	const match = {};
 	if (filters.categories.length > 0) {
-		match.$or = [{ category: { $in: filters.categories } }, { categories: { $in: filters.categories } }];
+		match.$or = [
+			{ category: { $in: filters.categories } },
+			{ categories: { $in: filters.categories } }
+		];
 	}
 	if (filters.level) {
 		match.level = filters.level;
@@ -77,14 +91,12 @@ function buildPipeline(sortMode, sortDirection, filters) {
 		pipeline.push({ $match: match });
 	}
 
-	pipeline.push(
-		{
-			$sort:
-				sortMode === 'level'
-					? { sortLevelOrder: sortMultiplier, sortCreatedAt: sortMultiplier, _id: sortMultiplier }
-					: { sortCreatedAt: sortMultiplier, _id: sortMultiplier }
-		}
-	);
+	pipeline.push({
+		$sort:
+			sortMode === 'level'
+				? { sortLevelOrder: sortMultiplier, sortCreatedAt: sortMultiplier, _id: sortMultiplier }
+				: { sortCreatedAt: sortMultiplier, _id: sortMultiplier }
+	});
 
 	return pipeline;
 }

@@ -20,7 +20,14 @@ function getFilterValue(url, key) {
 }
 
 function getFilterValues(url, key) {
-	return [...new Set(url.searchParams.getAll(key).map((value) => String(value).trim()).filter(Boolean))];
+	return [
+		...new Set(
+			url.searchParams
+				.getAll(key)
+				.map((value) => String(value).trim())
+				.filter(Boolean)
+		)
+	];
 }
 
 function buildPipeline(sortMode, sortDirection, filters) {
@@ -42,7 +49,7 @@ function buildPipeline(sortMode, sortDirection, filters) {
 				},
 				exerciseCount: { $size: { $ifNull: ['$exerciseIds', []] } }
 			}
-		},
+		}
 	];
 
 	const match = {};
