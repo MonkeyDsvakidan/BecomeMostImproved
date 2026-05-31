@@ -51,7 +51,9 @@
 		try {
 			const q = $page.url.searchParams.get('q');
 			if (q) searchQuery = q;
-		} catch {}
+		} catch {
+			/* ignore */
+		}
 	});
 
 	// keep input visible and in-sync with URL `q` when the page store changes,
@@ -63,7 +65,9 @@
 		} else if (qFromUrl !== (searchQuery ?? '')) {
 			searchQuery = qFromUrl;
 		}
-	} catch {}
+	} catch {
+		/* ignore */
+	}
 
 	// client-side filtered list (applies on top of server filters)
 	$: visibleExercises = (exercises || []).filter((ex) => {
