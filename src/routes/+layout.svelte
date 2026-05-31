@@ -96,7 +96,7 @@
 			class="navbar-brand fw-bold navbar-brand-gradient d-flex align-items-center gap-2"
 			href={resolve('/')}
 		>
-			<img src="/icon.svg" alt="" aria-hidden="true" class="brand-icon" />
+			<img src="/icon.svg" alt="" aria-hidden="true" class="brand-icon" width="64" height="64" decoding="async" />
 			<span>BecomeMostImproved</span>
 		</a>
 		<button

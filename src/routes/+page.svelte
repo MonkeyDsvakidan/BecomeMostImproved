@@ -42,17 +42,12 @@
 	}
 </script>
 
-<svelte:head>
-	<title>BallToTheTop - Home</title>
-	<meta name="description" content="Transform your fitness journey with BallToTheTop" />
-</svelte:head>
-
 <section class="container py-4 dashboard">
 	<div class="card bg-dark border-secondary shadow-lg rounded-3 mb-4">
 		<div
-			class="card-body p-4 p-md-5 d-flex flex-column flex-md-row align-items-center gap-4 gap-md-5"
+			class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-center gap-2 gap-md-3"
 		>
-			<img src="/icon.svg" alt="" aria-hidden="true" class="hero-icon" />
+			<img src="/icon.svg" alt="" aria-hidden="true" class="hero-icon" width="112" height="112" decoding="async" fetchpriority="high" />
 			<div class="text-center text-md-start flex-grow-1">
 				<h1 class="display-5 fw-bold mb-2">Welcome to BallToTheTop</h1>
 				<div class="d-flex flex-wrap gap-3 mt-3">
@@ -210,13 +205,15 @@
 		width: 7rem;
 		height: 7rem;
 		flex: 0 0 auto;
-		filter: drop-shadow(0 0.75rem 1.5rem rgba(0, 0, 0, 0.35));
+		object-fit: cover;
+		border-radius: 0.4rem;
+		filter: drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.35));
 	}
 
 	@media (min-width: 768px) {
 		.hero-icon {
-			width: 8.5rem;
-			height: 8.5rem;
+			width: 7rem;
+			height: 7rem;
 		}
 	}
 
@@ -258,37 +255,4 @@
 		color: #111111;
 	}
 
-	.session-remove-btn {
-		opacity: 0.75;
-		width: 2rem;
-		height: 2rem;
-		line-height: 1;
-		padding: 0;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.25rem;
-		font-weight: 700;
-	}
-
-	.session-remove-btn:hover,
-	.session-remove-btn:focus {
-		opacity: 1;
-	}
-
-	.history-modal-backdrop {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.65);
-		z-index: 1040;
-	}
-
-	.history-modal {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		z-index: 1050;
-		width: min(28rem, calc(100vw - 2rem));
-	}
 </style>
