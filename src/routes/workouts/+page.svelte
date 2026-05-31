@@ -50,6 +50,7 @@
 	// Update local state when `data` changes (e.g. client-side navigation)
 	let __lastData;
 	$: if (data && data !== __lastData) {
+		// eslint-disable-next-line no-useless-assignment
 		__lastData = data;
 		workouts = data?.workouts ?? [];
 		availableCategories = data?.availableCategories ?? [];
@@ -93,6 +94,8 @@
 		.filter((w) => !showOnlyFavorites || Boolean(w.isFavorite));
 
 	function buildHref(overrides = {}) {
+		// prefer Svelte reactivity for URLSearchParams in reactive contexts; this usage is local
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const params = new URLSearchParams();
 		const nextSortMode = overrides.sortMode ?? sortMode;
 		const nextSortDirection = overrides.sortDirection ?? sortDirection;
@@ -122,7 +125,7 @@
 	}
 
 	function navigateWith(overrides = {}) {
-		goto(buildHref(overrides));
+		goto(resolve($page.url.pathname + buildHref(overrides)));
 	}
 
 	function toggleShowOnlyFavorites() {
@@ -242,26 +245,26 @@
 				<div class="d-flex flex-wrap align-items-center gap-2">
 					<span class="text-secondary small fw-semibold text-uppercase">Sort by:</span>
 					<div class="btn-group" role="group" aria-label="Sort workouts">
-						<a
-							href={sortHref('date', sortDirection)}
-							class={`btn btn-sm ${sortMode === 'date' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
-							>{sortLabels.date}</a
-						>
-						<a
-							href={sortHref('level', sortDirection)}
-							class={`btn btn-sm ${sortMode === 'level' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
-							>{sortLabels.level}</a
-						>
-					</div>
+								<a
+									href={resolve($page.url.pathname + sortHref('date', sortDirection))}
+									class={`btn btn-sm ${sortMode === 'date' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+									>{sortLabels.date}</a
+								>
+								<a
+									href={resolve($page.url.pathname + sortHref('level', sortDirection))}
+									class={`btn btn-sm ${sortMode === 'level' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
+									>{sortLabels.level}</a
+								>
+							</div>
 					<div class="btn-group" role="group" aria-label="Sort direction">
 						<a
-							href={sortHref(sortMode, 'asc')}
+							href={resolve($page.url.pathname + sortHref(sortMode, 'asc'))}
 							class={`btn btn-sm ${sortDirection === 'asc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 							aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`}
 							title={`Sort ${sortLabels[sortMode]} ${directionLabels.asc}`}>↑</a
 						>
 						<a
-							href={sortHref(sortMode, 'desc')}
+							href={resolve($page.url.pathname + sortHref(sortMode, 'desc'))}
 							class={`btn btn-sm ${sortDirection === 'desc' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 							aria-label={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`}
 							title={`Sort ${sortLabels[sortMode]} ${directionLabels.desc}`}>↓</a
@@ -269,7 +272,7 @@
 					</div>
 				</div>
 				<a
-					href={buildHref({ categories: [], exerciseCount: '', duration: '' })}
+					href={resolve($page.url.pathname + buildHref({ categories: [], exerciseCount: '', duration: '' }))}
 					class="btn btn-outline-warning"
 				>
 					Clear all filters
@@ -312,13 +315,13 @@
 					<div class="form-label text-light fw-semibold mb-2">Exercises</div>
 					<div class="d-flex flex-wrap gap-2">
 						<a
-							href={buildHref({ exerciseCount: '' })}
+							href={resolve($page.url.pathname + buildHref({ exerciseCount: '' }))}
 							class={`btn btn-sm ${selectedExerciseCount === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 							>All</a
 						>
-						{#each Object.entries(exerciseCountLabels) as [range, label]}
+						{#each Object.entries(exerciseCountLabels) as [range, label] (range)}
 							<a
-								href={buildHref({ exerciseCount: range })}
+								href={resolve($page.url.pathname + buildHref({ exerciseCount: range }))}
 								class={`btn btn-sm ${selectedExerciseCount === range ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 								>{label}</a
 							>
@@ -329,13 +332,13 @@
 					<div class="form-label text-light fw-semibold mb-2">Duration</div>
 					<div class="d-flex flex-wrap gap-2">
 						<a
-							href={buildHref({ duration: '' })}
+							href={resolve($page.url.pathname + buildHref({ duration: '' }))}
 							class={`btn btn-sm ${selectedDuration === '' ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 							>All</a
 						>
-						{#each Object.entries(durationLabels) as [duration, label]}
+						{#each Object.entries(durationLabels) as [duration, label] (duration)}
 							<a
-								href={buildHref({ duration })}
+								href={resolve($page.url.pathname + buildHref({ duration }))}
 								class={`btn btn-sm ${selectedDuration === duration ? 'btn-primary btn-orange' : 'btn-outline-light'}`}
 								>{label}</a
 							>
@@ -346,21 +349,21 @@
 
 			{#if hasActiveFilters()}
 				<div class="d-flex flex-wrap gap-2">
-					{#each selectedCategories as category (category)}
+						{#each selectedCategories as category (category)}
 						<a
-							href={buildHref({
+							href={resolve($page.url.pathname + buildHref({
 								categories: selectedCategories.filter((value) => value !== category)
-							})}
+							}))}
 							class="filter-badge text-decoration-none">Category: {category} ×</a
 						>
 					{/each}
-					{#if selectedExerciseCount}
-						<a href={buildHref({ exerciseCount: '' })} class="filter-badge text-decoration-none"
+						{#if selectedExerciseCount}
+						<a href={resolve($page.url.pathname + buildHref({ exerciseCount: '' }))} class="filter-badge text-decoration-none"
 							>Exercises: {exerciseCountLabels[selectedExerciseCount]} ×</a
 						>
 					{/if}
 					{#if selectedDuration}
-						<a href={buildHref({ duration: '' })} class="filter-badge text-decoration-none"
+						<a href={resolve($page.url.pathname + buildHref({ duration: '' }))} class="filter-badge text-decoration-none"
 							>Duration: {durationLabels[selectedDuration]} ×</a
 						>
 					{/if}
