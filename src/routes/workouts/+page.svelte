@@ -47,6 +47,20 @@
 
 	// initial data is taken from `data` on first render; updates are driven by navigation
 
+	// Update local state when `data` changes (e.g. client-side navigation)
+	let __lastData;
+	$: if (data && data !== __lastData) {
+		__lastData = data;
+		workouts = data?.workouts ?? [];
+		availableCategories = data?.availableCategories ?? [];
+		sortMode = data?.sortMode ?? 'date';
+		sortDirection = data?.sortDirection ?? (sortMode === 'level' ? 'asc' : 'desc');
+		selectedCategories = data?.selectedCategories ?? [];
+		selectedExerciseCount = data?.selectedExerciseCount ?? '';
+		selectedDuration = data?.selectedDuration ?? '';
+		error = data?.error ?? '';
+	}
+
 	// init searchQuery from URL
 	onMount(() => {
 		try {
