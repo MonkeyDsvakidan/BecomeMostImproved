@@ -40,18 +40,21 @@
 
 - **Kernfunktionalität:**
   - **Exercise-Bibliothek**: Nutzer können Exercises anzeigen, erstellen, bearbeiten und löschen
-  - **Workout-Planung**: Exercises zu Workouts kombinieren mit Drag-and-Drop-Funktion
+  - **Workout-Planung**: Exercises zu Workouts kombinieren mit Auswahlformular und automatischer Duration-Berechnung
   - **Session-Durchführung**: Workouts starten, Fortschritt tracken mit To-do-Modus und Fortschrittsbalken
   - **Filterung**: Nach Kategorie (z.B. Shooting, Dribbling), Level (Beginner bis Advanced) und Zeit filtern
   - **Pausentimer**: Konfigurierbare Pausen zwischen Exercises
-  - **Workout-Rating & History**: Bewertung nach abgeschlossenen Workouts, Speicherung der Trainingshistorie
+  - **Workout-History**: Speicherung der durchgeführten Trainings-Sessions mit Zeitstempel und Dauer
+  - **Favoriten-System**: Workouts als Favoriten markieren für schnellen Zugriff
+  - **Auto-Duration**: Automatische Berechnung der Workout-Dauer basierend auf ausgewählten Exercises
+  - **Toast-Notifications**: Visuelles Feedback bei CRUD-Operationen
 
-- **Annahmen [Optional]:**
+  **Annahmen:**
   - Basketballspieler suchen nach einer kostenlosen Lösung für Solo-Training -> Hypothese durch mein eigenes Interesse geprüft, ebenfalls durch Marktrecherche ein Interesse erkannt
   - Visuelle Card-Darstellung erleichtert die Übersicht und Auswahl -> geprüft durch Skizzierungen von Übung 9
   - Verschiedene Erfahrungsstufen benötigen unterschiedliche Komplexitätsstufen (von vorgefertigten Templates bis zu individueller Workout-Erstellung) -> die Hypothese ist bei Sport anwendbar, auch durch eigene Erfahrung bestätigt
 
-- **Abgrenzung [Optional]:**
+- **Abgrenzung:**
   - Keine Videoanalyse oder Filmaufnahmen
   - Keine Team-/Coach-Funktionen
   - Keine kostenpflichtigen Features
@@ -297,10 +300,10 @@ Englisch, da Basketball-Fachbegriffe (Crossover, Fadeaway, Reps, Sets) auf Deuts
 - **SvelteKit**: Framework für die gesamte Webanwendung
 - **Bootstrap**: UI-Framework für Layout, Cards, Buttons und Formulare (global eingebunden)
 - **MongoDB**: NoSQL-Datenbank für Persistenz (über offiziellen MongoDB-Treiber)
+
 - **Zusätzliche Dependencies**:
   - `dotenv`: Umgebungsvariablen-Management
-  - `@fontsource/fira-mono`: Schriftart
-  - `@neoconfetti/svelte`: Konfetti-Effekte (aktuell nicht aktiv genutzt)
+  - `@neoconfetti/svelte`: Konfetti-Effekte (vorhanden, aktuell nicht aktiv genutzt)
 
 **Tooling:**
 
@@ -319,13 +322,14 @@ Die Projektstruktur folgt der typischen SvelteKit-Organisation.
 **Wichtige Komponenten:**
 
 - **ExerciseCard**: Visuelle Darstellung einzelner Exercises mit Actions (Start, Edit, Delete)
-- **WorkoutCard**: Visuelle Darstellung von Workouts mit Actions (Start, Edit, Delete)
-- Formulare und Timer sind direkt in den jeweiligen Pages implementiert (z.B. New-Seiten, Session-Seiten)
+- **WorkoutCard**: Visuelle Darstellung von Workouts mit Actions (Start, Edit, Delete, Favorite-Toggle)
+- **ToastNotification**: Globale Toast-Benachrichtigungen (Success/Error)
+- Formulare und Timer sind direkt in den jeweiligen Pages implementiert
 
 **State-Management:**
 
-Es werden keine eigenen Svelte Stores verwendet. State-Verwaltung erfolgt:
-
+Minimal Store-Nutzung:
+- **Toast-Store**: `src/lib/stores/toast.js` für globale Toast-Notifications
 - **Lokal**: Reactive Variables in Komponenten und Seiten
 - **Serverseitig**: Daten werden über SvelteKit `load`-Funktionen geladen
 - **Einziger Store**: SvelteKit-integrierter `$page`-Store für Navigation und mobiles Menü im Layout
@@ -334,11 +338,12 @@ Es werden keine eigenen Svelte Stores verwendet. State-Verwaltung erfolgt:
 
 **Datenbank (MongoDB Atlas):**
 
-Collections:
-
-- **exercises**: Speichert alle Exercises (name, category, level, sets, reps, duration)
-- **workouts**: Speichert Workouts mit Referenzen zu Exercises
-- **sessions**: Speichert abgeschlossene Trainings-Sessions mit Ratings, Statistiken und dient als History
+**Collections**:
+  - `exercises`: Speichert alle Exercises (name, category, level, sets, reps, duration, description)
+  - `workouts`: Speichert Workouts mit Referenzen zu Exercises
+  - **Neue Felder**: `isFavorite` (boolean), `favoritedAt` (date), `pausePerExercise` (number)
+  - **sessions**: Speichert abgeschlossene Trainings-Sessions
+   - **Felder**: workoutId/exerciseId, startedAt, completedAt, `actualDurationSeconds`
 
 Die Historie wird über die `sessions`-Collection abgebildet, nicht über eine separate History-Collection.
 
@@ -352,6 +357,12 @@ Die Historie wird über die `sessions`-Collection abgebildet, nicht über eine s
 - **Serverseitige `load`-Funktionen**: Datenabruf aus MongoDB in `+page.server.js`-Dateien
 - **Direkte Datenbankabfragen**: MongoDB-Treiber in Server-Routen
 
+**API-Routen:**
+- `/api/exercises` - Exercise CRUD
+- `/api/workouts` - Workout CRUD
+- `/api/workouts/toggleFavorite` - Favoriten-Toggle
+- `/api/sessions` - Session-Tracking
+
 **Deployment:**
 
 URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify.app)
@@ -360,7 +371,7 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 
 - **Plattform**: Netlify
 - **Build-Command**: `npm run build` (erzeugt SvelteKit-Adapter-Output)
-- **Publish-Directory**: `.svelte-kit/netlify` (über `@sveltejs/adapter-netlify`)
+- **Publish-Directory**: `build` (laut netlify.toml)
 - **Umgebungsvariablen**: MongoDB-Connection-String über Netlify Environment Variables
 
 **Besondere Entscheidungen:**
@@ -385,12 +396,11 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 - Vorbereitung für mögliche externe Anbindungen oder mobile Apps
 - Klare Trennung zwischen API-Logik und Page-Logik
 
-**Keine Custom Stores:**
+**Gezielter Einsatz von Custom Stores:**
 
-- Kleine App-Größe rechtfertigt keinen globalen State
-- SvelteKit `load`-Funktionen handhaben Datenabruf effizient
-- Lokaler State ausreichend für UI-Interaktionen
-- Vereinfachte Architektur, weniger Komplexität
+- Ein globaler Toast-Store reicht aus, um Feedback konsistent zu steuern
+- Weitere globalen Stores wurden bewusst vermieden, lokaler State und `load`-Funktionen sind ausreichend
+- Hält die Architektur einfach, ohne auf konsistentes Feedback zu verzichten
 
 **History im Dashboard integriert:**
 
@@ -408,10 +418,20 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 
 **Trade-offs:**
 
-- **Performance vs. Development Speed**: Bootstrap-Bundle größer als Custom CSS, aber deutlich schnellere Entwicklung
+- **Performance vs. Development Speed**: Bootstrap-Bundle grösser als Custom CSS, aber deutlich schnellere Entwicklung
 - **Flexibilität vs. Einfachheit**: Keine Stores bedeutet weniger globale State-Management-Möglichkeiten, aber einfacherer Code
 - **Code-Wiederverwendung vs. Direktheit**: Formulare/Timer nicht als Komponenten ausgelagert spart initialen Abstraktionsaufwand, könnte bei Skalierung zu Redundanz führen
 - **API vs. Form Actions**: Beide Ansätze parallel erhöhen Komplexität leicht, bieten aber mehr Flexibilität
+
+**Toast-Store statt Inline-Alerts:**
+- Globaler Toast-Store für konsistentes Feedback
+- Verhindert redundante Alert-Komponenten
+- Optimistic UI für bessere User Experience
+
+**Performance-Optimierungen:**
+- Preconnect/Preload in `src/app.html` für schnellere Font-/Resource-Laden
+- Netlify Cache-Control Headers in `netlify.toml`
+- Auto-Duration Backfill-Script (`scripts/backfill_durations.js`) für Datenkonsistenz
 
 ### 3.5 Validate
 
@@ -419,7 +439,7 @@ URL: [https://becomemostimproved.netlify.app](https://becomemostimproved.netlify
 
 Die getestete Version wurde nicht separat deployt. Als Ersatzmassnahme (wie in der Kleinklasse erklärt) wurden Screenshots von allen Funktionen der getesteten Version in diesen Teil eingefügt.
 
-> **Hinweis:** Die Evaluation wurde ausschließlich mit der Desktop-Version durchgeführt. Die mobile Version wurde zum Testzeitpunkt nicht evaluiert. Screenshots der mobile Version sind in diesem Kapitel dokumentiert, um den Stand zum Zeitpunkt der Evaluation festzuhalten.
+> **Hinweis:** Die Evaluation wurde ausschliesslich mit der Desktop-Version durchgeführt. Die mobile Version wurde zum Testzeitpunkt nicht evaluiert. Screenshots der mobile Version sind in diesem Kapitel dokumentiert, um den Stand zum Zeitpunkt der Evaluation festzuhalten.
 
 **Ziele der Prüfung:**
 
@@ -451,7 +471,7 @@ Die getestete Version wurde nicht separat deployt. Als Ersatzmassnahme (wie in d
 
 **Kennzahlen & Beobachtungen:**
 
-Beide Testpersonen konnten alle vier Aufgaben grundsätzlich erfolgreich abschließen. Detaillierte Beobachtungen:
+Beide Testpersonen konnten alle vier Aufgaben grundsätzlich erfolgreich abschliessen. Detaillierte Beobachtungen:
 
 **Aufgabe 1 - Exercise erstellen:**
 
@@ -657,40 +677,395 @@ Priorisiert nach Dringlichkeit (Kritisch → Hoch → Mittel → Niedrig):
 18. Edit/Delete als Icons statt Text-Buttons (UI, Aufwand: Gering)
 19. Duration bei Workout-Erstellung automatisch berechnen (Feature, Aufwand: Mittel)
 
-_Hinweis: Aufgrund der Nähe zur Abgabefrist können eventuell nicht alle identifizierten Verbesserungen umgesetzt werden. Priorisiert wurden kritische Bugs und Issues mit hoher Priorität und geringem Aufwand. Die tatsächliche Umsetzung ist in Kapitel 4 ersichtlich._
+_Hinweis: Aufgrund der Nähe zur Abgabefrist können eventuell nicht alle identifizierten Verbesserungen umgesetzt werden. Priorisiert wurden kritische Bugs und Issues mit hoher Priorität und geringem Aufwand._
+
+**Umgesetzte Verbesserungen:**
+
+Nach der Evaluation vom 21. Mai 2026 wurden folgende Verbesserungen implementiert:
+
+**KRITISCH (behoben):**
+1. ✅ **"Exercise not found" Bug behoben** - Edit-Funktionalität prüft nun korrekt ObjectId und gibt aussagekräftige Fehler zurück
+
+**HOCH (umgesetzt):**
+2. ✅ **"Add Category" Button-Text** - Geändert in allen Forms (`/exercises/new`, `/workouts/new`, Edit-Pages)
+3. ✅ **"Description (optional)" Label** - Implementiert in Exercise-Forms, Feld ist nun optional
+4. ✅ **Pflichtfelder mit rotem Sternchen** - Alle required-Felder markiert mit `<span style="color: red;">*</span>`
+5. ✅ **Feldspezifische Fehlermeldungen** - Validierungsfehler erscheinen direkt beim betroffenen Feld
+6. ✅ **Toast-Notifications** - Implementiert für alle CRUD-Operationen (Success/Error)
+
+**MITTEL (umgesetzt):**
+7. ✅ **Auto-Sortierung** - Exercises/Workouts nach Datum, Level, Name sortierbar
+8. ✅ **Exercise-Liste übersichtlicher** - Workout-Erstellung mit Auto-Filter nach Kategorie
+9. ✅ **Kontrast erhöht** - Textfelder mit `#e9ecef`, Nicht-Textfelder mit `#adb5bd`
+10. ✅ **Auto-Filter bei Workout-Erstellung** - Filtert Exercises automatisch nach gewählter Workout-Kategorie
+
+**ZUSÄTZLICH IMPLEMENTIERT (über Evaluation hinaus):**
+- ✅ **Favoriten-System** - Workouts markierbar, Dashboard zeigt "Favorite Workouts"
+- ✅ **Auto-Duration** - Automatische Berechnung + Backfill-Script
+- ✅ **Performance-Tweaks** - Preconnect, Preload, Cache-Headers
+- ✅ **Session-History** - Recent Activity im Dashboard mit Lösch-Funktion
+- ✅ **Optimistic UI** - Sofortiges Feedback bei Favoriten-Toggle
+
+**Implementierte Dateien (Auswahl):**
+- `src/lib/stores/toast.js` - Toast-System
+- `src/lib/components/WorkoutCard.svelte` - Favorite-Toggle
+- `src/routes/api/workouts/toggleFavorite/+server.js` - API-Endpoint
+- `scripts/backfill_durations.js` - Duration-Backfill
+- `src/styles/overrides.css` - Kontrast-Verbesserungen
+
+> **Hinweis zu Screenshots:** Die Screenshots in diesem Kapitel ("tested-*") dokumentieren den Stand der Anwendung **zum Testzeitpunkt (21. Mai 2026)** und zeigen teilweise noch nicht behobene Issues. Aktuelle Screenshots der finalen Version befinden sich am Ende dieses Kapitels unter "Finale Version nach Verbesserungen".
+
+**Screenshots der finalen Version (nach Evaluation):**
+
+![Final - Dashboard mit Favorites](README-Images/final-dashboard.png)
+![Final - Exercise Form mit optionalem Description](README-Images/final-exercise-form.png)
+![Final - Workout Builder mit Auto-Duration](README-Images/final-workout-builder.png)
+![Final - Workouts mit Filter](README-Images/final-workouts-filter.png)
+![Final - Workout Card Favorite](README-Images/final-workout-card-favorite.png)
+![Final - Toast Notification](README-Images/final-toast-notification.png)
+![Final - Session History](README-Images/final-session-history.png)
 
 ## 4. Erweiterungen [Optional]
 
-Dokumentiert Erweiterungen über den Mindestumfang hinaus.
+Dieses Kapitel dokumentiert Features, die über den Mindestumfang der Aufgabenstellung hinausgehen.
 
-> **Hinweis:** Jede Erweiterung ist separat nach dem folgenden Schema zu beschreiben.
+> **Mindestumfang laut Übungen:**
+> - CRUD für Exercises und Workouts
+> - Mindestens 1 Übersichtsseite, 1 Erfassungsseite
+> - MongoDB-Persistenz
+> - SvelteKit + Komponenten
+> - Git/GitHub, Deployment
 
-### _[4.x Kurzbeschreibung / Titel]_
+---
 
-- **Beschreibung & Nutzen:** _[Was wurde erweitert? Warum?]_
-- **Wo umgesetzt:** _[Wie und wo wurde es gemacht? Frontend, Backend, Datenbank?]_
-- **Referenz:** _[Wo wird die Erweiterung auch noch beschrieben, z.B. Screenshot oder Beschreibung in einem anderen Kapitel]_
-- **Aus Evaluation abgeleitet?:** _[Wurde diese Erweiterung als Folge eines in der Evaluation identifizierten Issues implementiert?]_
+### 4.1 Favoriten-System
 
-> Das folgende **Beispiel** wurde bewusst kurz gehalten. Erweiterungen dürfen auch ausführlicher beschrieben werden.
+**Beschreibung & Nutzen:**
 
-### 4.1 Tabelle nach Kategorien filtern
+Nutzer können Workouts als Favoriten markieren. Favorisierte Workouts werden prominent im Dashboard angezeigt ("Favorite Workouts") und können gefiltert werden. Unterstützt optimistische UI für sofortiges visuelles Feedback.
 
-- **Beschreibung & Nutzen:** Tabelle X kann nach Kategorie gefiltert werden, weil User typischerweise nur an einer bestimmten Kategorie interessiert sind.
-- **Wo umgesetzt:**
-  - **Frontend:** Tabelle mit Dropdown in Datei ...
-  - **Backend:** Form Action ... in Datei ...
-  - **Datenbank:** MongoDB-Query in Datei ...
-- **Referenz:** Screenshot in Kap. x.y
-- **Aus Evaluation abgeleitet?:** Ja, Issue x.y
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/lib/components/WorkoutCard.svelte` - Favorite-Star-Toggle
+  - `src/routes/+page.svelte` - Dashboard "Favorite Workouts" Section
+  - `src/routes/workouts/+page.svelte` - "Show only favorites" Filter
+
+- **Backend:**
+  - `src/routes/api/workouts/toggleFavorite/+server.js` - Toggle-Endpoint
+  - `src/routes/+page.server.js` - Dashboard-Query mit Favorite-Sorting
+
+- **Datenbank:**
+  - `workouts` Collection: `isFavorite` (boolean), `favoritedAt` (date)
+
+**Referenz:** Screenshots `final-dashboard.png`, `final-workouts-filter.png`
+
+**Aus Evaluation abgeleitet?:** Ja - Usability-Verbesserung für schnellen Zugriff
+
+---
+
+### 4.2 Filter-Funktionen
+
+**Beschreibung & Nutzen:**
+
+Umfassende Filter-Optionen für Exercises und Workouts:
+- Nach Kategorie (Dropdown mit allen vorhandenen Categories)
+- Nach Level (Beginner, Intermediate, Advanced)
+- Nach Duration (< 10 Min, 10-20 Min, > 20 Min)
+- Text-Suche (q-Parameter)
+- "Show only favorites" für Workouts
+
+Erleichtert Navigation bei grossen Datenbeständen.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/routes/exercises/+page.svelte` - Filter-UI
+  - `src/routes/workouts/+page.svelte` - Filter-UI mit Favorite-Toggle
+
+- **Backend:**
+  - `src/routes/api/exercises/+server.js` - Server-side Filtering
+  - `src/routes/api/workouts/+server.js` - Server-side Filtering mit MongoDB Aggregation
+
+- **URL-Parameter:** `?category=Shooting&level=Beginner&duration=10-20&favorite=1`
+
+**Referenz:** Screenshot `final-workouts-filter.png`
+
+**Aus Evaluation abgeleitet?:** Ja - Issue 8 (Exercise-Liste übersichtlicher gestalten)
+
+---
+
+### 4.3 Auto-Duration-Berechnung
+
+**Beschreibung & Nutzen:**
+
+Beim Erstellen/Bearbeiten eines Workouts wird die Gesamtdauer automatisch aus den gewählten Exercises berechnet. Berücksichtigt optionale Pausen zwischen Exercises (`pausePerExercise`). Verhindert manuelle Fehler und spart Zeit.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/routes/workouts/new/+page.svelte` - Reactive `$: autoDuration` Berechnung
+  - `src/routes/workouts/[id]/edit/+page.svelte` - Auto-Duration mit Update-Badge
+  - Zeigt Warnung wenn Exercises ohne Duration ausgewählt werden
+
+- **Backend:**
+  - `scripts/backfill_durations.js` - Backfill-Script für bestehende Workouts
+
+- **Datenbank:**
+  - `workouts.duration` wird automatisch berechnet/aktualisiert
+
+**Referenz:** Screenshot `final-workout-builder.png`
+
+**Aus Evaluation abgeleitet?:** Ja - Usability-Verbesserung + Datenkonsistenz
+
+---
+
+### 4.4 Sortierung (Multi-Mode)
+
+**Beschreibung & Nutzen:**
+
+Flexible Sortier-Optionen für Exercises und Workouts:
+- Nach Erstellungsdatum (neueste/älteste zuerst)
+- Nach Level (Beginner → Advanced oder umgekehrt)
+- Nach Name (alphabetisch)
+- Nach Update-Datum
+
+Server- und clientseitig implementiert.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/routes/exercises/+page.svelte` - Sort-Links
+  - `src/routes/workouts/+page.svelte` - Sort-Links
+
+- **Backend:**
+  - `src/routes/exercises/+page.server.js` - `getSortMode()` / `getSortDirection()`
+  - `src/routes/workouts/+page.server.js` - Favorite-Sorting by `favoritedAt`
+
+**URL-Parameter:** `?sort=level&dir=asc`
+
+**Referenz:** Kapitel 3.4.2 - Struktur
+
+**Aus Evaluation abgeleitet?:** Teilweise - Best Practice + Evaluation Issue 7
+
+---
+
+### 4.5 Toast-Notifications
+
+**Beschreibung & Nutzen:**
+
+Globales Toast-System für Success/Error-Feedback bei allen CRUD-Operationen und Favoriten-Aktionen. Verbessert User Experience durch klares, nicht-invasives Feedback.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/lib/stores/toast.js` - Svelte Store für Toast-State
+  - `src/lib/components/ToastNotification.svelte` - Toast-Komponente (angenommen)
+  - Aufrufe in: ExerciseCard, WorkoutCard, Forms, Delete-Actions
+
+- **Backend:**
+  - Server-Actions geben Success/Error-Status zurück
+
+**Referenz:** Screenshot `final-toast-notification.png`
+
+**Aus Evaluation abgeleitet?:** Ja - Issue 5 (Pop-ups nach CRUD-Operationen)
+
+---
+
+### 4.6 Session-History & Recent Activity
+
+**Beschreibung & Nutzen:**
+
+Protokollierung aller durchgeführten Trainings-Sessions mit Start-/End-Zeitstempel und tatsächlicher Dauer. Dashboard zeigt "Recent Activity" mit letzten 5 Sessions. User können einzelne Sessions aus History entfernen.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/routes/+page.svelte` - Dashboard "Recent Activity" Section
+  - `src/routes/workouts/[id]/session/+page.svelte` - Session-Tracking
+  - `src/routes/exercises/[id]/session/+page.svelte` - Session-Tracking
+
+- **Backend:**
+  - `src/routes/api/sessions/+server.js` - Session CRUD
+  - `src/routes/+page.server.js` - Recent Activity Query + Delete-Action
+
+- **Datenbank:**
+  - `sessions` Collection: workoutId/exerciseId, startedAt, completedAt, `actualDurationSeconds`
+
+**Referenz:** Screenshot `final-dashboard.png`
+
+**Aus Evaluation abgeleitet?:** Ja - History-Feature war geplant, Lösch-Funktion aus Feedback
+
+---
+
+### 4.7 Pausentimer
+
+**Beschreibung & Nutzen:**
+
+Konfigurierbare Pausen zwischen Exercises mit automatischem Countdown-Timer. Workout kann `pausePerExercise` (in Sekunden) definieren. Session-Page zeigt Break-Timer mit visueller Anzeige.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/routes/workouts/[id]/session/+page.svelte` - Break-Timer-Logik
+  - `src/routes/workouts/new/+page.svelte` - Pause-Per-Exercise Input
+  - `src/routes/workouts/[id]/edit/+page.svelte` - Pause-Per-Exercise Edit
+
+- **Backend:**
+  - Keine separate Persistenz nötig (Teil von Workout-Daten)
+
+**Referenz:** Kapitel 3.4.1 - Session-Durchführung
+
+**Aus Evaluation abgeleitet?:** Ja - Session-UX-Verbesserung
+
+---
+
+### 4.8 Optimistische UI-Updates
+
+**Beschreibung & Nutzen:**
+
+Sofortige UI-Änderung vor Server-Bestätigung (z.B. Favoriten-Toggle). Bei Fehler: Automatisches Rollback. Erhöht wahrgenommene Performance und Responsiveness.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/lib/components/WorkoutCard.svelte` - Lokaler State `isFavoriteLocal`
+  - Fetch POST zu toggleFavorite-Endpoint
+  - Error-Handling mit Rollback + Toast
+
+**Referenz:** Kapitel 3.4.1 - UX-Verbesserungen
+
+**Aus Evaluation abgeleitet?:** Ja - Best Practice für moderne Web-Apps
+
+---
+
+### 4.9 Auto-Duration Backfill-Script
+
+**Beschreibung & Nutzen:**
+
+Node.js-Script zum Nachberechnen und Aktualisieren fehlender/inkonsistenter `workout.duration`-Werte in der Datenbank. Sichert Datenkonsistenz nach Einführung der Auto-Duration-Funktion.
+
+**Wo umgesetzt:**
+
+- **Script:**
+  - `scripts/backfill_durations.js` - Nutzt MONGODB_URI, aktualisiert workouts Collection
+
+**Verwendung:**
+```bash
+node scripts/backfill_durations.js
+```
+
+**Referenz:** Kapitel 3.4.2 - Tools & Scripts
+
+**Aus Evaluation abgeleitet?:** Ja - Datenmigration nach Feature-Einführung
+
+---
+
+### 4.10 Performance-Optimierungen
+
+**Beschreibung & Nutzen:**
+
+Diverse Performance-Tweaks für schnellere Ladezeiten:
+- Preconnect/Preload für Fonts und externe Resources (`src/app.html`)
+- Netlify Cache-Control Headers für statische Assets (`netlify.toml`)
+- Optimierte MongoDB-Queries (Indexing auf häufig gefilterte Felder)
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/app.html` - `<link rel="preconnect">`, `<link rel="preload">`
+
+- **Deployment:**
+  - `netlify.toml` - Custom Cache-Control Headers
+
+**Referenz:** Kapitel 3.4.2 - Deployment & Performance
+
+**Aus Evaluation abgeleitet?:** Ja - Deployment/Performance-Optimierungen
+
+---
+
+### 4.11 Responsive/Mobile-Optimierungen
+
+**Beschreibung & Nutzen:**
+
+UI nutzt Bootstrap-Responsive-Klassen und Custom-CSS-Overrides für optimale Darstellung auf kleinen Bildschirmen. Mobile Navigation mit Hamburger-Menu.
+
+**Wo umgesetzt:**
+
+- **Frontend:**
+  - `src/styles/overrides.css` - Mobile-specific Styles
+  - `src/routes/+layout.svelte` - Responsive Navigation
+  - Bootstrap-Klassen: `d-none d-md-block`, `col-12 col-md-6` etc.
+
+**Referenz:** Screenshots `tested-mobile-*`
+
+**Aus Evaluation abgeleitet?:** Teilweise - Best Practice + Testing
+
+---
+
+### 4.12 Nicht implementierte Features (Geplant für V2)
+
+**Drag-and-Drop Workout-Builder:**
+- Beschreibung: Reihenfolge der Exercises per Drag&Drop ändern
+- Status: Nicht implementiert (Selection-basiertes Interface stattdessen)
+- Grund: Aufwand vs. Nutzen; aktuelle Lösung funktional ausreichend
+
+**Workout-Rating-System:**
+- Beschreibung: User-Bewertungen (1-5 Sterne) für Workouts
+- Status: Nicht implementiert (History vorhanden, Ratings fehlen)
+- Grund: Zeitliche Priorisierung; V2-Feature
 
 ## 5. Projektorganisation [Optional]
 
 Beispiele:
 
-- **Repository & Struktur:** _[Link; kurze Strukturübersicht]_
-- **Issue-Management:** _[Vorgehen kurz beschreiben]_
-- **Commit-Praxis:** _[z. B. sprechende Commits]_
+- **Repository & Struktur:** 
+
+https://github.com/MonkeyDsvakidan/BecomeMostImproved
+
+```
+/BecomeMostImproved
+├── src/
+│ ├── routes/ # SvelteKit Pages & API-Routes
+│ ├── lib/
+│ │ ├── components/ # Wiederverwendbare UI-Komponenten
+│ │ └── stores/ # Svelte Stores (toast.js)
+│ ├── styles/ # Global CSS (overrides.css)
+│ └── app.html # HTML-Template (preconnect/preload)
+├── scripts/ # Helper-Scripts (backfill_durations.js)
+├── static/ # Statische Assets
+├── netlify.toml # Netlify-Konfiguration
+└── package.json # Dependencies
+```
+
+
+**Build & Deployment:**
+
+```bash
+# Installation
+npm install
+
+# Development
+npm run dev
+
+# Build
+npm run build
+
+# Deployment
+# Manuell via Netlify
+```
+
+**Commit-Praxis:**
+
+- Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`
+- Beispiele:
+  - `feat: add favorites system with toggle and dashboard integration`
+  - `fix: resolve exercise edit bug with ObjectId validation`
+  - `refactor: improve form field contrast for better readability`
+
+**Issue-Management:**
+
+GitHub Issues für Bug-Tracking und Feature-Requests. Evaluation-Findings wurden als Issues dokumentiert und systematisch abgearbeitet.
 
 ## 6. KI-Deklaration
 
@@ -739,7 +1114,7 @@ Die folgende Deklaration ist verpflichtend und beschreibt den Einsatz von KI im 
 
    - Anschliessend Session-Durchführung
 
-   - Zuletzt Filter, Rating, History
+   - Zuletzt Filter und History (Rating war geplant, wurde aber bewusst für eine spätere Version zurückgestellt)
 
 4. **Git-Commits parallel zu Prompts**:
 
@@ -782,8 +1157,22 @@ Die folgende Deklaration ist verpflichtend und beschreibt den Einsatz von KI im 
 
 ## 7. Anhang [Optional]
 
-Beispiele:
+**Wichtige Dateien:**
 
-- **Quellen:** _[verwendete Vorlagen/Assets/Modelle; Lizenz/Urheberrecht; ...]_
-- **Testskript & Materialien:** _[Link/Datei]_
-- **Rohdaten/Auswertung:** _[Link/Datei]_
+- [scripts/backfill_durations.js](scripts/backfill_durations.js) - Auto-Duration Backfill-Script
+- [netlify.toml](netlify.toml) - Deployment-Konfiguration mit Cache-Headers
+- [src/lib/stores/toast.js](src/lib/stores/toast.js) - Toast-Notification Store
+- [src/routes/api/workouts/toggleFavorite/+server.js](src/routes/api/workouts/toggleFavorite/+server.js) - Favorite-Toggle API
+
+**Quellen & Referenzen:**
+
+- Bootstrap 5 Documentation: https://getbootstrap.com/docs/5.3/
+- SvelteKit Documentation: https://kit.svelte.dev/docs
+- MongoDB Node.js Driver: https://www.mongodb.com/docs/drivers/node/
+- Netlify Deployment: https://docs.netlify.com/
+
+**Evaluations-Material:**
+
+- Evaluation Grid: `readme-images/evaluation-grid.jpg`
+- Test-Screenshots (21. Mai 2026): `readme-images/tested-*`
+- Finale Screenshots: `readme-images/final-*`
