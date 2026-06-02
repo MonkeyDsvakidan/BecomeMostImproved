@@ -119,16 +119,9 @@ export const actions = {
 				return fail(404, { error: 'Exercise not found' });
 			}
 
-			const updatedExercise = await db.collection('exercises').findOne({ _id: new ObjectId(id) });
-
-			if (!updatedExercise) {
-				return fail(404, { error: 'Exercise not found' });
-			}
-
 			return {
 				success: true,
-				message: 'Exercise updated successfully!',
-				exercise: updatedExercise
+				message: 'Exercise updated successfully!'
 			};
 		} catch (error) {
 			console.error('POST /exercises/[id]/edit action error:', error);
